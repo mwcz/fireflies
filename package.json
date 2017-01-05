@@ -1,0 +1,15 @@
+{
+  "name": "sap",
+  "version": "1.0.0",
+  "description": "A particle engine using image masks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "browser-sync start --server --serveStatic src --files 'src/**/*' --no-inject-changes --directory"
+  },
+  "author": "mwcz <mwc@clayto.com>",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "browser-sync": "^2.18.2"
+  }
+}
