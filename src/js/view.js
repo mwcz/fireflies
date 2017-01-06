@@ -60,10 +60,10 @@ class ParticleView {
             this.fidgetSpeed[ i3 + 0 ] = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 1 ] = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 2 ] = 0;
-            this.fidgetDistance[ i3 + 0 ] = this.widthScale * this.fidget.distance * (Math.random() - 0.5);
+            this.fidgetDistance[ i3 + 0 ] = this.heightScale * this.fidget.distance * (Math.random() - 0.5);
             this.fidgetDistance[ i3 + 1 ] = this.heightScale * this.fidgetDistance[ i3 + 0 ];
             this.fidgetDistance[ i3 + 2 ] = 0;
-            color.setHSL( (i / this.count) * 0.25 + 0.03, 1.0, 0.5 );
+            color.setHSL( (i / this.count) * 0.15 + 0.07 * 0.5*(Math.random() - 0.5), 1.0, 0.5 );
             colors[ i3 + 0 ] = color.r;
             colors[ i3 + 1 ] = color.g;
             colors[ i3 + 2 ] = color.b;
