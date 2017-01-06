@@ -1,16 +1,20 @@
 class ParticleView {
-    constructor(particleCount) {
-        this.particleCount = particleCount || 100000;
+    constructor({count = 10000, fidget={}} = {}) {
+        this.count = count;
+        this.fidget = fidget;
+
+        fidget.speed = fidget.speed || 0.1;
+        fidget.distance = fidget.distance || 0.1;
 
         this.init();
         this.animate();
-
     }
     init() {
-        var renderer, scene, camera;
-        var particleSystem, uniforms, geometry;
-        var WIDTH = window.innerWidth;
-        var HEIGHT = window.innerHeight;
+        let renderer, scene, camera;
+        let particleSystem, uniforms, geometry;
+        let WIDTH = window.innerWidth;
+        let HEIGHT = window.innerHeight;
+        this.clock = new THREE.Clock();
         camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 1, 10000 );
         camera.position.z = 200;
         scene = new THREE.Scene();
@@ -18,7 +22,7 @@ class ParticleView {
             color:     { value: new THREE.Color( 0xffffff ) },
             texture:   { value: new THREE.TextureLoader().load( "spark1.png" ) }
         };
-        var shaderMaterial = new THREE.ShaderMaterial( {
+        let shaderMaterial = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
@@ -26,17 +30,19 @@ class ParticleView {
             depthTest:      false,
             transparent:    true
         });
-        var radius = 200;
+        let radius = 200;
         geometry = new THREE.BufferGeometry();
-        this.positions = new Float32Array( this.particleCount * 3 );
-        this.velocity = new Float32Array( this.particleCount * 3 );
-        this.acceleration = new Float32Array( this.particleCount * 3 );
-        this.destinations = new Float32Array( this.particleCount * 3 );
-        var colors = new Float32Array( this.particleCount * 3 );
-        this.opacity = new Float32Array( this.particleCount );
-        var sizes = new Float32Array( this.particleCount );
-        var color = new THREE.Color();
-        for ( var i = 0, i3 = 0; i < this.particleCount; i ++, i3 += 3 ) {
+        this.positions = new Float32Array( this.count * 3 );
+        this.velocity = new Float32Array( this.count * 3 );
+        this.acceleration = new Float32Array( this.count * 3 );
+        this.destinations = new Float32Array( this.count * 3 );
+        this.fidgetSpeed = new Float32Array( this.count * 3 );
+        this.fidgetDistance = new Float32Array( this.count * 3 );
+        let colors = new Float32Array( this.count * 3 );
+        this.opacity = new Float32Array( this.count );
+        let sizes = new Float32Array( this.count );
+        let color = new THREE.Color();
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
             this.positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * 10;;
             this.positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * 10;;
             // this.positions[ i3 + 2 ] = 0;
@@ -46,11 +52,17 @@ class ParticleView {
             // this.acceleration[ i3 + 0 ] = 0;
             // this.acceleration[ i3 + 1 ] = 0;
             // this.acceleration[ i3 + 2 ] = 0;
-            color.setHSL( (i / this.particleCount) * 0.15 + 0, 1.0, 0.5 );
+            this.fidgetSpeed[ i3 + 0 ] = this.fidget.speed * Math.random() + 0.1;
+            this.fidgetSpeed[ i3 + 1 ] = this.fidget.speed * Math.random() + 0.1;
+            this.fidgetSpeed[ i3 + 2 ] = 0;
+            this.fidgetDistance[ i3 + 0 ] = this.fidget.distance * (Math.random() - 0.5);
+            this.fidgetDistance[ i3 + 1 ] = this.fidgetDistance[ i3 + 0 ];
+            this.fidgetDistance[ i3 + 2 ] = 0;
+            color.setHSL( (i / this.count) * 0.15 + 0, 1.0, 0.5 );
             colors[ i3 + 0 ] = color.r;
             colors[ i3 + 1 ] = color.g;
             colors[ i3 + 2 ] = color.b;
-            sizes[ i ] = 10;
+            sizes[ i ] = 8;
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
         geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
@@ -72,10 +84,10 @@ class ParticleView {
         this.geometry       = geometry;
     }
     render() {
-        // var time = Date.now() * 0.005;
+        // let time = Date.now() * 0.005;
         // particleSystem.rotation.z = 0.01 * time;
-        // var sizes = geometry.attributes.size.array;
-        // for ( var i = 0; i < this.particleCount; i++ ) {
+        // let sizes = geometry.attributes.size.array;
+        // for ( let i = 0; i < this.count; i++ ) {
         //     sizes[ i ] = 10 * ( 1 + Math.sin( 0.1 * i + time ) );
         // }
         // geometry.attributes.size.needsUpdate = true;
@@ -96,7 +108,7 @@ class ParticleView {
         this.render();
     }
     updateAcceleration() {
-        for ( var i = 0, i3 = 0; i < this.particleCount; i ++, i3 += 3 ) {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
             const x = this.positions[ i3 + 0 ];
             const y = this.positions[ i3 + 1 ];
             const destx = this.destinations[ i3 + 0 ];
@@ -111,7 +123,7 @@ class ParticleView {
     }
     updateVelocity() {
         const MAX_VELOCITY = 1;
-        for ( var i = 0, i3 = 0; i < this.particleCount; i ++, i3 += 3 ) {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
             this.velocity[ i3 + 0 ] += this.acceleration[ i3 + 0 ];
             this.velocity[ i3 + 1 ] += this.acceleration[ i3 + 1 ];
             this.velocity[ i3 + 2 ] += this.acceleration[ i3 + 2 ];
@@ -121,7 +133,7 @@ class ParticleView {
         }
     }
     updatePositions() {
-        for ( var i = 0, i3 = 0; i < this.particleCount; i ++, i3 += 3 ) {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
              this.positions[ i3 + 0 ] += this.velocity[ i3 + 0 ];
              this.positions[ i3 + 1 ] += this.velocity[ i3 + 1 ];
              this.positions[ i3 + 2 ] += this.velocity[ i3 + 2 ];
@@ -130,10 +142,16 @@ class ParticleView {
     }
     updatePositionsLerp() {
         const RATIO = 0.97;
-        for ( var i = 0, i3 = 0; i < this.particleCount; i ++, i3 += 3 ) {
-             this.positions[ i3 + 0 ] = RATIO * this.positions[ i3 + 0 ] + (1 - RATIO) * this.destinations[ i3 + 0 ];
-             this.positions[ i3 + 1 ] = RATIO * this.positions[ i3 + 1 ] + (1 - RATIO) * this.destinations[ i3 + 1 ];
-             this.positions[ i3 + 2 ] = RATIO * this.positions[ i3 + 2 ] + (1 - RATIO) * this.destinations[ i3 + 2 ];
+        const t = this.clock.getElapsedTime();
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
+            const fsx = this.fidgetSpeed[ i3 + 0 ];
+            const fsy = this.fidgetSpeed[ i3 + 1 ];
+            const fdx = this.fidgetDistance[ i3 + 0 ];
+            const fdy = this.fidgetDistance[ i3 + 1 ];
+            //                                 current position                         destination position         fidget
+            this.positions[ i3 + 0 ] = RATIO * this.positions[ i3 + 0 ] + (1 - RATIO) * this.destinations[ i3 + 0 ] + Math.sin(t*fsx) * fdx;
+            this.positions[ i3 + 1 ] = RATIO * this.positions[ i3 + 1 ] + (1 - RATIO) * this.destinations[ i3 + 1 ] - Math.cos(t*fsy) * fdy;
+            // this.positions[ i3 + 2 ] = RATIO * this.positions[ i3 + 2 ] + (1 - RATIO) * this.destinations[ i3 + 2 ] + Math.sin(t) * this.fidgetArray[ i3 + 2 ];
         }
         this.geometry.attributes.position.needsUpdate = true;
     }
@@ -149,7 +167,7 @@ class ParticleView {
         //     this.destinations[i3]   = x * w;
         //     this.destinations[i3+1] = y * h;
         // }
-        for ( let i = 0, i2 = 0, i3 = 0; i < this.particleCount; i++, i2 += 2, i3 += 3 ) {
+        for ( let i = 0, i2 = 0, i3 = 0; i < this.count; i++, i2 += 2, i3 += 3 ) {
             if (i2 < dotterResult.dots.length) {
                 // update destinations for each particle which has a corresponding destination
                 const x = dotterResult.dots[i2] - 0.5;
