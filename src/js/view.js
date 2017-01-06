@@ -21,6 +21,8 @@ class ParticleView {
         let particleSystem, uniforms, geometry;
         let WIDTH = window.innerWidth;
         let HEIGHT = window.innerHeight;
+        this.heightScale = HEIGHT / 1000;
+        this.widthScale = WIDTH / 1000;
         this.clock = new THREE.Clock();
         camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 1, 10000 );
         camera.position.z = 260;
@@ -49,35 +51,28 @@ class ParticleView {
         this.opacity = new Float32Array( this.count );
         this.opacityDest = new Float32Array( this.count );
         this.tweenTimer = new Float32Array( this.count );
-        let sizes = new Float32Array( this.count );
+        this.sizes = new Float32Array( this.count );
         let color = new THREE.Color();
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
             this.positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * 40;
             this.positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * 40;
-            // this.positions[ i3 + 2 ] = 0;
-            // this.velocity[ i3 + 0 ] = 0;
-            // this.velocity[ i3 + 1 ] = 0;
-            // this.velocity[ i3 + 2 ] = 0;
-            // this.acceleration[ i3 + 0 ] = 0;
-            // this.acceleration[ i3 + 1 ] = 0;
-            // this.acceleration[ i3 + 2 ] = 0;
             this.opacity[ i ] = 1;
             this.fidgetSpeed[ i3 + 0 ] = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 1 ] = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 2 ] = 0;
-            this.fidgetDistance[ i3 + 0 ] = this.fidget.distance * (Math.random() - 0.5);
-            this.fidgetDistance[ i3 + 1 ] = this.fidgetDistance[ i3 + 0 ];
+            this.fidgetDistance[ i3 + 0 ] = this.widthScale * this.fidget.distance * (Math.random() - 0.5);
+            this.fidgetDistance[ i3 + 1 ] = this.heightScale * this.fidgetDistance[ i3 + 0 ];
             this.fidgetDistance[ i3 + 2 ] = 0;
             color.setHSL( (i / this.count) * 0.25 + 0.03, 1.0, 0.5 );
             colors[ i3 + 0 ] = color.r;
             colors[ i3 + 1 ] = color.g;
             colors[ i3 + 2 ] = color.b;
-            sizes[ i ] = this.size + Math.random()*this.size/2;
+            this.sizes[ i ] = this.heightScale * this.size + Math.random()*this.size/2;
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
         geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
         geometry.addAttribute( 'opacity', new THREE.BufferAttribute( this.opacity, 1 ) );
-        geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+        geometry.addAttribute( 'size', new THREE.BufferAttribute( this.sizes, 1 ) );
         particleSystem = new THREE.Points( geometry, shaderMaterial );
         scene.add( particleSystem );
         renderer = new THREE.WebGLRenderer();
@@ -93,28 +88,29 @@ class ParticleView {
         this.particleSystem = particleSystem;
         this.uniforms       = uniforms;
         this.geometry       = geometry;
+        this.setViewportRelativeFields();
     }
     render() {
-        // let time = Date.now() * 0.005;
-        // particleSystem.rotation.z = 0.01 * time;
-        // let sizes = geometry.attributes.size.array;
-        // for ( let i = 0; i < this.count; i++ ) {
-        //     sizes[ i ] = 10 * ( 1 + Math.sin( 0.1 * i + time ) );
-        // }
-        // geometry.attributes.size.needsUpdate = true;
-
-        // this.updateAcceleration();
-        // this.updateVelocity();
-        // this.updatePositions();
         this.updateTweenTimers();
         this.updatePositionsTween();
         this.updateOpacityTween();
         this.renderer.render( this.scene, this.camera );
     }
     onWindowResize() {
+        this.heightScale = window.innerHeight / 1000;
+        this.widthScale = window.innerWidth / 1000;
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.setViewportRelativeFields();
+    }
+    setViewportRelativeFields() {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
+            this.fidgetDistance[ i3 + 0 ] = this.heightScale * this.fidget.distance * (Math.random() - 0.5);
+            this.fidgetDistance[ i3 + 1 ] = this.heightScale * this.fidgetDistance[ i3 + 0 ];
+            this.sizes[ i ] = this.heightScale * this.size + Math.random()*this.size/2;
+        }
+        this.geometry.attributes.size.needsUpdate = true;
     }
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
