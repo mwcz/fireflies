@@ -1,13 +1,17 @@
 class ParticleView {
-    constructor({count = 10000, fidget={}, tween={}} = {}) {
+    constructor({size=10, count = 10000, fidget={}, tween={}} = {}) {
         this.count = count;
         this.fidget = fidget;
         this.tween = tween;
+        this.size = size;
 
         fidget.speed = fidget.speed || 0.1;
         fidget.distance = fidget.distance || 0.1;
 
         tween.duration = tween.duration || 60;
+        tween.xfunc = tween.xfunc || Tween.easeInOutQuad;
+        tween.xfunc = tween.xfunc || Tween.easeInOutQuad;
+        tween.ofunc = tween.ofunc || Tween.linearTween;
 
         this.init();
         this.animate();
@@ -19,7 +23,7 @@ class ParticleView {
         let HEIGHT = window.innerHeight;
         this.clock = new THREE.Clock();
         camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 1, 10000 );
-        camera.position.z = 200;
+        camera.position.z = 260;
         scene = new THREE.Scene();
         uniforms = {
             color:     { value: new THREE.Color( 0xffffff ) },
@@ -43,6 +47,7 @@ class ParticleView {
         this.fidgetDistance = new Float32Array( this.count * 3 );
         let colors = new Float32Array( this.count * 3 );
         this.opacity = new Float32Array( this.count );
+        this.opacityDest = new Float32Array( this.count );
         this.tweenTimer = new Float32Array( this.count );
         let sizes = new Float32Array( this.count );
         let color = new THREE.Color();
@@ -56,6 +61,7 @@ class ParticleView {
             // this.acceleration[ i3 + 0 ] = 0;
             // this.acceleration[ i3 + 1 ] = 0;
             // this.acceleration[ i3 + 2 ] = 0;
+            this.opacity[ i ] = 1;
             this.fidgetSpeed[ i3 + 0 ] = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 1 ] = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 2 ] = 0;
@@ -66,7 +72,7 @@ class ParticleView {
             colors[ i3 + 0 ] = color.r;
             colors[ i3 + 1 ] = color.g;
             colors[ i3 + 2 ] = color.b;
-            sizes[ i ] = 8;
+            sizes[ i ] = this.size + Math.random()*this.size/2;
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
         geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
@@ -100,8 +106,9 @@ class ParticleView {
         // this.updateAcceleration();
         // this.updateVelocity();
         // this.updatePositions();
-        this.updatePositionsTween(Tween.easeInOutQuint, Tween.easeInOutQuint);
         this.updateTweenTimers();
+        this.updatePositionsTween();
+        this.updateOpacityTween();
         this.renderer.render( this.scene, this.camera );
     }
     onWindowResize() {
@@ -113,28 +120,22 @@ class ParticleView {
         requestAnimationFrame( this.animate.bind(this) );
         this.render();
     }
-    updatePositionsLerp() {
-        const RATIO = 0.97;
-        const t = this.clock.getElapsedTime();
+    updateOpacityTween() {
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
-            const fsx = this.fidgetSpeed[ i3 + 0 ];
-            const fsy = this.fidgetSpeed[ i3 + 1 ];
-            const fdx = this.fidgetDistance[ i3 + 0 ];
-            const fdy = this.fidgetDistance[ i3 + 1 ];
-            //                                 current position                         destination position         fidget
-            this.positions[ i3 + 0 ] = RATIO * this.positions[ i3 + 0 ] + (1 - RATIO) * this.destinations[ i3 + 0 ] + Math.sin(t*fsx) * fdx;
-            this.positions[ i3 + 1 ] = RATIO * this.positions[ i3 + 1 ] + (1 - RATIO) * this.destinations[ i3 + 1 ] - Math.cos(t*fsy) * fdy;
-            // this.positions[ i3 + 2 ] = RATIO * this.positions[ i3 + 2 ] + (1 - RATIO) * this.destinations[ i3 + 2 ] + Math.sin(t) * this.fidgetArray[ i3 + 2 ];
+            const o = this.opacity[i];
+            const oDest = this.opacityDest[i];
+            const time = this.tweenTimer[i];
+            const onew = this.tween.ofunc(time, o, oDest-o, this.tween.duration);
+            this.opacity[i] = onew;
         }
-        this.geometry.attributes.position.needsUpdate = true;
+        this.geometry.attributes.opacity.needsUpdate = true;
     }
     updateTweenTimers() {
         for ( let i = 0; i < this.count; i++ ) {
-            this.tweenTimer[i] = Math.max(this.tweenTimer[i] - 1, 0);
+            this.tweenTimer[i] = Math.min(this.tweenTimer[i] + 1, this.tween.duration);
         }
     }
-    updatePositionsTween(tweenX, tweenY) {
-        const RATIO = 0.97;
+    updatePositionsTween() {
         const t = this.clock.getElapsedTime();
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
             const x = this.positions[ i3 + 0 ];
@@ -145,9 +146,9 @@ class ParticleView {
             const fsy = this.fidgetSpeed[ i3 + 1 ];
             const fdx = this.fidgetDistance[ i3 + 0 ];
             const fdy = this.fidgetDistance[ i3 + 1 ];
-            const time = this.tween.duration - this.tweenTimer[i];
-            const xnew = tweenX(time, x, xdest-x, this.tween.duration) + Math.sin(t*fsx) * fdx;
-            const ynew = tweenY(time, y, ydest-y, this.tween.duration) - Math.cos(t*fsy) * fdy;
+            const time = this.tweenTimer[i];
+            const xnew = this.tween.xfunc(time, x, xdest-x, this.tween.duration) + Math.sin(t*fsx) * fdx;
+            const ynew = this.tween.yfunc(time, y, ydest-y, this.tween.duration) - Math.cos(t*fsy) * fdy;
             //                         current position + destination position + fidget
             this.positions[ i3 + 0 ] = xnew;
             this.positions[ i3 + 1 ] = ynew;
@@ -175,19 +176,19 @@ class ParticleView {
 
                 this.destinations[i3]   = x * w;
                 this.destinations[i3+1] = y * h;
-                this.opacity[i] = 1;
+                this.opacityDest[i] = 1;
             }
             else {
                 const dotCount3 = dotterResult.dots.length * 3/2;
                 // for particles without a destination in this mask image, hide them and move them to the same location as a living particle
                 this.destinations[i3]   = this.destinations[ (i3+0) % dotCount3 ];
                 this.destinations[i3+1] = this.destinations[ (i3+1) % dotCount3 ];
-                this.opacity[i] = 0;
+                this.opacityDest[i] = 0;
             }
         }
         this.geometry.attributes.opacity.needsUpdate = true;
 
         // refresh the tween timers
-        this.tweenTimer.fill(this.tween.duration);
+        this.tweenTimer.fill(0);
     }
 }

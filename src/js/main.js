@@ -1,13 +1,17 @@
 let dotter = new Dotter({ jitter: 1.0 });
 
 let view = new ParticleView({
-    count: 5000,
+    size: 5,
+    count: 3875,
     fidget: {
         speed: 2.0,
         distance: 1.1,
     },
     tween: {
         duration: 260, // fps
+        xfunc: Tween.easeInOutCubic,
+        yfunc: Tween.easeInOutCubic,
+        ofunc: Tween.easeInOutCubic,
     },
 });
 
@@ -25,6 +29,8 @@ const previewImages = [
     'spiral.png',
     'face.png',
 ];
+
+show(previewImages[previewImages.length-1]);
 
 setInterval(() => {
     const img = previewImages.shift();
