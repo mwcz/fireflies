@@ -1,10 +1,13 @@
 class ParticleView {
-    constructor({count = 10000, fidget={}} = {}) {
+    constructor({count = 10000, fidget={}, tween={}} = {}) {
         this.count = count;
         this.fidget = fidget;
+        this.tween = tween;
 
         fidget.speed = fidget.speed || 0.1;
         fidget.distance = fidget.distance || 0.1;
+
+        tween.duration = tween.duration || 60;
 
         this.init();
         this.animate();
@@ -40,11 +43,12 @@ class ParticleView {
         this.fidgetDistance = new Float32Array( this.count * 3 );
         let colors = new Float32Array( this.count * 3 );
         this.opacity = new Float32Array( this.count );
+        this.tweenTimer = new Float32Array( this.count );
         let sizes = new Float32Array( this.count );
         let color = new THREE.Color();
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
-            this.positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * 10;;
-            this.positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * 10;;
+            this.positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * 40;
+            this.positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * 40;
             // this.positions[ i3 + 2 ] = 0;
             // this.velocity[ i3 + 0 ] = 0;
             // this.velocity[ i3 + 1 ] = 0;
@@ -58,7 +62,7 @@ class ParticleView {
             this.fidgetDistance[ i3 + 0 ] = this.fidget.distance * (Math.random() - 0.5);
             this.fidgetDistance[ i3 + 1 ] = this.fidgetDistance[ i3 + 0 ];
             this.fidgetDistance[ i3 + 2 ] = 0;
-            color.setHSL( (i / this.count) * 0.15 + 0, 1.0, 0.5 );
+            color.setHSL( (i / this.count) * 0.25 + 0.03, 1.0, 0.5 );
             colors[ i3 + 0 ] = color.r;
             colors[ i3 + 1 ] = color.g;
             colors[ i3 + 2 ] = color.b;
@@ -73,6 +77,7 @@ class ParticleView {
         renderer = new THREE.WebGLRenderer();
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( WIDTH, HEIGHT );
+        renderer.setClearColor(new THREE.Color('#1A1126'));
         document.body.appendChild( renderer.domElement );
         //
         window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
@@ -95,7 +100,8 @@ class ParticleView {
         // this.updateAcceleration();
         // this.updateVelocity();
         // this.updatePositions();
-        this.updatePositionsLerp();
+        this.updatePositionsTween(Tween.easeInOutQuint, Tween.easeInOutQuint);
+        this.updateTweenTimers();
         this.renderer.render( this.scene, this.camera );
     }
     onWindowResize() {
@@ -106,39 +112,6 @@ class ParticleView {
     animate() {
         requestAnimationFrame( this.animate.bind(this) );
         this.render();
-    }
-    updateAcceleration() {
-        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
-            const x = this.positions[ i3 + 0 ];
-            const y = this.positions[ i3 + 1 ];
-            const destx = this.destinations[ i3 + 0 ];
-            const desty = this.destinations[ i3 + 1 ];
-
-            const grav = this.gravity(x, y, destx, desty);
-
-            this.acceleration[ i3 + 0 ] = grav[0];
-            this.acceleration[ i3 + 1 ] = grav[1];
-            this.acceleration[ i3 + 2 ] = 0;
-        }
-    }
-    updateVelocity() {
-        const MAX_VELOCITY = 1;
-        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
-            this.velocity[ i3 + 0 ] += this.acceleration[ i3 + 0 ];
-            this.velocity[ i3 + 1 ] += this.acceleration[ i3 + 1 ];
-            this.velocity[ i3 + 2 ] += this.acceleration[ i3 + 2 ];
-            const mag = Math.sqrt(Math.pow(this.velocity[ i3 ], 2) + Math.pow(this.velocity[ i3 + 1 ], 2));
-            if (mag > MAX_VELOCITY) {
-            }
-        }
-    }
-    updatePositions() {
-        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
-             this.positions[ i3 + 0 ] += this.velocity[ i3 + 0 ];
-             this.positions[ i3 + 1 ] += this.velocity[ i3 + 1 ];
-             this.positions[ i3 + 2 ] += this.velocity[ i3 + 2 ];
-        }
-        this.geometry.attributes.position.needsUpdate = true;
     }
     updatePositionsLerp() {
         const RATIO = 0.97;
@@ -151,6 +124,33 @@ class ParticleView {
             //                                 current position                         destination position         fidget
             this.positions[ i3 + 0 ] = RATIO * this.positions[ i3 + 0 ] + (1 - RATIO) * this.destinations[ i3 + 0 ] + Math.sin(t*fsx) * fdx;
             this.positions[ i3 + 1 ] = RATIO * this.positions[ i3 + 1 ] + (1 - RATIO) * this.destinations[ i3 + 1 ] - Math.cos(t*fsy) * fdy;
+            // this.positions[ i3 + 2 ] = RATIO * this.positions[ i3 + 2 ] + (1 - RATIO) * this.destinations[ i3 + 2 ] + Math.sin(t) * this.fidgetArray[ i3 + 2 ];
+        }
+        this.geometry.attributes.position.needsUpdate = true;
+    }
+    updateTweenTimers() {
+        for ( let i = 0; i < this.count; i++ ) {
+            this.tweenTimer[i] = Math.max(this.tweenTimer[i] - 1, 0);
+        }
+    }
+    updatePositionsTween(tweenX, tweenY) {
+        const RATIO = 0.97;
+        const t = this.clock.getElapsedTime();
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
+            const x = this.positions[ i3 + 0 ];
+            const y = this.positions[ i3 + 1 ];
+            const xdest = this.destinations[ i3 + 0 ];
+            const ydest = this.destinations[ i3 + 1 ];
+            const fsx = this.fidgetSpeed[ i3 + 0 ];
+            const fsy = this.fidgetSpeed[ i3 + 1 ];
+            const fdx = this.fidgetDistance[ i3 + 0 ];
+            const fdy = this.fidgetDistance[ i3 + 1 ];
+            const time = this.tween.duration - this.tweenTimer[i];
+            const xnew = tweenX(time, x, xdest-x, this.tween.duration) + Math.sin(t*fsx) * fdx;
+            const ynew = tweenY(time, y, ydest-y, this.tween.duration) - Math.cos(t*fsy) * fdy;
+            //                         current position + destination position + fidget
+            this.positions[ i3 + 0 ] = xnew;
+            this.positions[ i3 + 1 ] = ynew;
             // this.positions[ i3 + 2 ] = RATIO * this.positions[ i3 + 2 ] + (1 - RATIO) * this.destinations[ i3 + 2 ] + Math.sin(t) * this.fidgetArray[ i3 + 2 ];
         }
         this.geometry.attributes.position.needsUpdate = true;
@@ -178,41 +178,16 @@ class ParticleView {
                 this.opacity[i] = 1;
             }
             else {
-                // for particles without a destination in this mask image, hide them and move them to origin
-                this.destinations[i3]   = ( Math.random() * 2 - 1 ) * 100;
-                this.destinations[i3+1] = ( Math.random() * 2 - 1 ) * 100;
+                const dotCount3 = dotterResult.dots.length * 3/2;
+                // for particles without a destination in this mask image, hide them and move them to the same location as a living particle
+                this.destinations[i3]   = this.destinations[ (i3+0) % dotCount3 ];
+                this.destinations[i3+1] = this.destinations[ (i3+1) % dotCount3 ];
                 this.opacity[i] = 0;
             }
         }
         this.geometry.attributes.opacity.needsUpdate = true;
+
+        // refresh the tween timers
+        this.tweenTimer.fill(this.tween.duration);
     }
-    gravity(p1x, p1y, p2x, p2y) {
-        const MASS = 1;
-        const MAX_ACCEL = 0.1;
-
-        const xd = p2x - p1x;
-        const yd = p2y - p1y;
-
-        const xd2 = Math.pow( xd, 2 );
-        const yd2 = Math.pow( yd, 2 );
-        const r = xd2 + yd2;
-
-        const nv = Math.sqrt(r);
-
-        if (nv === 0) return [0, 0];
-
-        const ux = xd / nv;
-        const uy = yd / nv;
-
-        let mag = MASS / r;
-
-        if (Math.abs(mag) > MAX_ACCEL) {
-            mag = MAX_ACCEL * Math.abs(mag) / mag;
-        }
-
-        let ax = ux * mag;
-        let ay = uy * mag;
-
-        return [ax, ay];
-    };
 }

@@ -4,17 +4,30 @@ let view = new ParticleView({
     count: 5000,
     fidget: {
         speed: 2.0,
-        distance: 0.1,
-    }
+        distance: 1.1,
+    },
+    tween: {
+        duration: 260, // fps
+    },
 });
 
 function show(img) {
     dotter.process(img).then(view.shape.bind(view));
 }
 
-const INTERVAL = 3000;
-show('test.png');
-setTimeout(() => show('test2.png'), INTERVAL*1);
-setTimeout(() => show('spiral.png'), INTERVAL*2);
-setTimeout(() => show('face.png'), INTERVAL*3);
-setTimeout(() => show('shadowman.png'), INTERVAL*4);
+const INTERVAL = 4000;
+
+const previewImages = [
+    'shape1.png',
+    'shape2.png',
+    'shape3.png',
+    'shape4.png',
+    'spiral.png',
+    'face.png',
+];
+
+setInterval(() => {
+    const img = previewImages.shift();
+    previewImages.push(img);
+    show(img);
+}, INTERVAL);
