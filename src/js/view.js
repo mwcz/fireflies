@@ -33,27 +33,28 @@ class ParticleView {
         this.acceleration = new Float32Array( this.particleCount * 3 );
         this.destinations = new Float32Array( this.particleCount * 3 );
         var colors = new Float32Array( this.particleCount * 3 );
+        this.opacity = new Float32Array( this.particleCount );
         var sizes = new Float32Array( this.particleCount );
         var color = new THREE.Color();
-        var radius = 200;
         for ( var i = 0, i3 = 0; i < this.particleCount; i ++, i3 += 3 ) {
-            this.positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * radius;;
-            this.positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * radius;;
-            this.positions[ i3 + 2 ] = 0;
-            this.velocity[ i3 + 0 ] = 0;
-            this.velocity[ i3 + 1 ] = 0;
-            this.velocity[ i3 + 2 ] = 0;
-            this.acceleration[ i3 + 0 ] = 0;
-            this.acceleration[ i3 + 1 ] = 0;
-            this.acceleration[ i3 + 2 ] = 0;
-            color.setHSL( (i / this.particleCount) * 0.2 + 0.45, 1.0, 0.5 );
+            this.positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * 10;;
+            this.positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * 10;;
+            // this.positions[ i3 + 2 ] = 0;
+            // this.velocity[ i3 + 0 ] = 0;
+            // this.velocity[ i3 + 1 ] = 0;
+            // this.velocity[ i3 + 2 ] = 0;
+            // this.acceleration[ i3 + 0 ] = 0;
+            // this.acceleration[ i3 + 1 ] = 0;
+            // this.acceleration[ i3 + 2 ] = 0;
+            color.setHSL( (i / this.particleCount) * 0.15 + 0, 1.0, 0.5 );
             colors[ i3 + 0 ] = color.r;
             colors[ i3 + 1 ] = color.g;
             colors[ i3 + 2 ] = color.b;
-            sizes[ i ] = 15;
+            sizes[ i ] = 10;
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
         geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+        geometry.addAttribute( 'opacity', new THREE.BufferAttribute( this.opacity, 1 ) );
         geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
         particleSystem = new THREE.Points( geometry, shaderMaterial );
         scene.add( particleSystem );
@@ -86,8 +87,8 @@ class ParticleView {
         this.renderer.render( this.scene, this.camera );
     }
     onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
         this.renderer.setSize( window.innerWidth, window.innerHeight );
     }
     animate() {
@@ -140,14 +141,32 @@ class ParticleView {
         const w = dotterResult.original.canvas.el.width/6;
         const h = dotterResult.original.canvas.el.height/6;
 
-        for (let i = 0; i < dotterResult.dots.length; i += 2) {
-            const i3 = i * 3/2;
-            const x = dotterResult.dots[i] - 0.5;
-            const y = -dotterResult.dots[i+1] + 0.5;
+        // for (let i = 0; i < dotterResult.dots.length; i += 2) {
+        //     const i3 = i * 3/2;
+        //     const x = dotterResult.dots[i] - 0.5;
+        //     const y = -dotterResult.dots[i+1] + 0.5;
 
-            this.destinations[i3]   = x * w;
-            this.destinations[i3+1] = y * h;
+        //     this.destinations[i3]   = x * w;
+        //     this.destinations[i3+1] = y * h;
+        // }
+        for ( let i = 0, i2 = 0, i3 = 0; i < this.particleCount; i++, i2 += 2, i3 += 3 ) {
+            if (i2 < dotterResult.dots.length) {
+                // update destinations for each particle which has a corresponding destination
+                const x = dotterResult.dots[i2] - 0.5;
+                const y = -dotterResult.dots[i2+1] + 0.5;
+
+                this.destinations[i3]   = x * w;
+                this.destinations[i3+1] = y * h;
+                this.opacity[i] = 1;
+            }
+            else {
+                // for particles without a destination in this mask image, hide them and move them to origin
+                this.destinations[i3]   = ( Math.random() * 2 - 1 ) * 100;
+                this.destinations[i3+1] = ( Math.random() * 2 - 1 ) * 100;
+                this.opacity[i] = 0;
+            }
         }
+        this.geometry.attributes.opacity.needsUpdate = true;
     }
     gravity(p1x, p1y, p2x, p2y) {
         const MASS = 1;

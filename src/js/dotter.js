@@ -95,7 +95,7 @@ class Dotter {
             }
         }
 
-        console.log(`${points.length} points found`);
+        console.log(`${points.length/2} points found`);
         this._drawPoints(canvas, points);
 
         return points;
