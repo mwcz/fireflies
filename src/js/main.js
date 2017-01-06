@@ -22,12 +22,11 @@ function show(img) {
 const INTERVAL = 4000;
 
 const previewImages = [
-    'masks/shape1.png',
-    'masks/shape2.png',
-    'masks/shape3.png',
-    'masks/shape4.png',
+    'masks/heart.png',
     'masks/spiral.png',
     'masks/face.png',
+    'masks/yinyang.png',
+    'masks/test.png',
 ];
 
 show(previewImages[previewImages.length-1]);
