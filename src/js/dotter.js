@@ -54,7 +54,7 @@ class Dotter {
         const w = canvas.el.width;
         const h = canvas.el.height;
 
-        const step = Math.ceil(1 / this.density);
+        const step = Math.floor(1 / this.density);
 
         console.log(`step: ${step}`);
 
