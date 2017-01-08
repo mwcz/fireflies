@@ -1,14 +1,22 @@
-let dotter = new Dotter({ jitter: 1.0 });
+let dotter = new Dotter({
+    jitter: 1.0,
+    density: 0.12,
+});
 
 let view = new ParticleView({
-    size: 5,
-    count: 3875,
+    size: 10,
+    count: 20000,
+    color: {
+        top: '#FFA317',
+        bottom: '#E6141B',
+        background: '#252142',
+    },
     fidget: {
-        speed: 2.0,
-        distance: 1.1,
+        speed: 2.4,
+        distance: 1.4,
     },
     tween: {
-        duration: 260, // fps
+        duration: 360, // fps
         xfunc: Tween.easeInOutCubic,
         yfunc: Tween.easeInOutCubic,
         ofunc: Tween.easeInOutCubic,
