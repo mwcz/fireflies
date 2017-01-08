@@ -2,12 +2,12 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 let dotter = new Dotter({
     jitter: 1.0,
-    density: 0.12,
+    density: 0.095,
 });
 
 let view = new ParticleView({
     size: 10,
-    count: 20000,
+    count: 14000,
     color: {
         top: '#FFA317',
         bottom: '#E6141B',
