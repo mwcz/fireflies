@@ -58,7 +58,6 @@ class ParticleView {
         this.opacityDest = new Float32Array( this.count );
         this.tweenTimer = new Float32Array( this.count );
         this.sizes = new Float32Array( this.count );
-        let color = new THREE.Color();
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
             this.positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * 40;
             this.positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * 40;
@@ -69,10 +68,9 @@ class ParticleView {
             this.fidgetDistance[ i3 + 0 ] = this.heightScale * this.fidget.distance * (Math.random() - 0.5);
             this.fidgetDistance[ i3 + 1 ] = this.heightScale * this.fidgetDistance[ i3 + 0 ];
             this.fidgetDistance[ i3 + 2 ] = 0;
-            // color.setHSL( (i / this.count) * 0.15 + 0.07 * 0.5*(Math.random() - 0.5), 1.0, 0.5 );
-            this.colors[ i3 + 0 ] = color.r;
-            this.colors[ i3 + 1 ] = color.g;
-            this.colors[ i3 + 2 ] = color.b;
+            // this.colors[ i3 + 0 ] = color.r;
+            // this.colors[ i3 + 1 ] = color.g;
+            // this.colors[ i3 + 2 ] = color.b;
             this.sizes[ i ] = this.heightScale * this.size + Math.random()*this.size/2;
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
