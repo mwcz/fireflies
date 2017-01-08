@@ -1,3 +1,5 @@
+if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
 let dotter = new Dotter({
     jitter: 1.0,
     density: 0.12,
