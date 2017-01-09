@@ -1,12 +1,16 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
+// create a dotter
+
 let dotter = new Dotter({
     jitter: 1.0,
     density: 0.095,
 });
 
+// create a particle view
+
 let view = new ParticleView({
-    size: 10,
+    size: 14,
     count: 14000,
     color: {
         top: '#FFA317',
@@ -18,31 +22,32 @@ let view = new ParticleView({
         distance: 1.4,
     },
     tween: {
-        duration: 360, // fps
+        duration: 500, // fps
         xfunc: Tween.easeInOutCubic,
         yfunc: Tween.easeInOutCubic,
         ofunc: Tween.easeInOutCubic,
     },
 });
 
-function show(img) {
-    dotter.process(img).then(view.shape.bind(view));
-}
-
-const INTERVAL = 4000;
+// some images to start with
 
 const previewImages = [
     'masks/heart.png',
     'masks/spiral.png',
-    'masks/face.png',
     'masks/yinyang.png',
-    'masks/test.png',
+    'masks/face.png',
 ];
 
-show(previewImages[previewImages.length-1]);
+// start the Ui
 
-setInterval(() => {
-    const img = previewImages.shift();
-    previewImages.push(img);
-    show(img);
-}, INTERVAL);
+const ui = new UI(previewImages);
+
+// wire up ui to particleview
+
+ui.onSetImage(img => {
+    dotter.process(img).then(view.shape.bind(view));
+});
+
+// show the first image and start rotation
+ui.setImageByIndex(0);
+ui.startRotate();

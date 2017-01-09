@@ -65,8 +65,8 @@ class ParticleView {
             this.fidgetSpeed[ i3 + 0 ] = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 1 ] = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 2 ] = 0;
-            this.fidgetDistance[ i3 + 0 ] = this.heightScale * this.fidget.distance * (Math.random() - 0.5);
-            this.fidgetDistance[ i3 + 1 ] = this.heightScale * this.fidgetDistance[ i3 + 0 ];
+            this.fidgetDistance[ i3 + 0 ] = this.fidget.distance * (Math.random() - 0.5);
+            this.fidgetDistance[ i3 + 1 ] = this.fidgetDistance[ i3 + 0 ];
             this.fidgetDistance[ i3 + 2 ] = 0;
             // this.colors[ i3 + 0 ] = color.r;
             // this.colors[ i3 + 1 ] = color.g;
@@ -111,8 +111,8 @@ class ParticleView {
     }
     setViewportRelativeFields() {
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
-            this.fidgetDistance[ i3 + 0 ] = this.heightScale * this.fidget.distance * (Math.random() - 0.5);
-            this.fidgetDistance[ i3 + 1 ] = this.heightScale * this.fidgetDistance[ i3 + 0 ];
+            this.fidgetDistance[ i3 + 0 ] = this.fidget.distance * (Math.random() - 0.5);
+            this.fidgetDistance[ i3 + 1 ] = this.fidgetDistance[ i3 + 0 ];
             this.sizes[ i ] = this.heightScale * this.size + Math.random()*this.size/2;
         }
         this.geometry.attributes.size.needsUpdate = true;
