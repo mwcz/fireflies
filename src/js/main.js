@@ -7,6 +7,9 @@ let dotter = new Dotter({
     density: 0.095,
 });
 
+dotter.addFilter(Bitter.scale);
+dotter.addFilter(Bitter.threshold);
+
 // create a particle view
 
 let view = new ParticleView({
@@ -32,10 +35,13 @@ let view = new ParticleView({
 // some images to start with
 
 const previewImages = [
+    'masks/fireflies.jpg',
+    'masks/three.png',
     'masks/heart.png',
     'masks/spiral.png',
-    'masks/yinyang.png',
     'masks/face.png',
+    'masks/tux.jpg',
+    'masks/lorenschmidt.jpg',
 ];
 
 // start the Ui
@@ -51,3 +57,26 @@ ui.onSetImage(img => {
 // show the first image and start rotation
 ui.setImageByIndex(0);
 ui.startRotate();
+
+// wire up drag and drop
+
+const dz = new Drop({
+    node: 'body',
+    dropEffect: 'copy',
+});
+
+dz.ondragenter = () => console.log('drag enter');
+dz.ondragleave = () => console.log('drag leave');
+dz.ondrop = dropData => {
+    dropData.files.forEach(f => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            ui.addImage(reader.result);
+            ui.stopRotate();
+            ui.setImageByIndex(-1);
+        });
+        reader.readAsDataURL( f.file );
+    });
+};
+
+document.ondrop = document.ondragover = function(e) { e.preventDefault(); };

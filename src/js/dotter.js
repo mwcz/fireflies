@@ -2,6 +2,7 @@ class Dotter {
     constructor({ density=0.15, jitter=1.0 } = {}) {
         this.density = density;
         this.jitter = jitter;
+        this.filters = [];
     }
 
     process(src) {
@@ -54,6 +55,11 @@ class Dotter {
         el.width = img.width;
         el.height = img.height;
         ctx.drawImage(img, 0, 0);
+
+        // call any registered filters on this canvas
+
+        this.filters.forEach(filter => filter({ el, ctx }));
+
         return { el, ctx };
     }
 
@@ -77,6 +83,7 @@ class Dotter {
         let r = 0;
         let g = 0;
         let b = 0;
+        let a = 0;
 
         for (let x = 0; x < w; x += step) {
             for (let y = 0; y < h; y += step) {
@@ -84,9 +91,10 @@ class Dotter {
                 r = pixels.data[i];
                 g = pixels.data[i+1];
                 b = pixels.data[i+2];
+                a = pixels.data[i+3];
 
-                // look for black pixels
-                if (r+g+b === 0) {
+                // look for black pixels or totally transparent pixels
+                if (r+g+b === 0 && a !== 0) {
                     let xJitter = Math.floor(Math.random() * this.jitter * step);
                     let yJitter = Math.floor(Math.random() * this.jitter * step);
                     points.push((x + xJitter) / w);
@@ -110,5 +118,9 @@ class Dotter {
             const y = points[i+1];
             canvas.ctx.fillRect( x * canvas.el.width, y * canvas.el.height, 1, 1 );
         }
+    }
+
+    addFilter(filterFunc) {
+        this.filters.push(filterFunc);
     }
 }

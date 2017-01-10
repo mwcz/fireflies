@@ -83,6 +83,9 @@ class UI {
 
     setImageByIndex(index) {
         const imageCount = this.engine.get('images').length;
+        if (index === -1) {
+            index = imageCount - 1;
+        }
         const newIndex = index % imageCount;
         const newImage = this.engine.get('images')[newIndex];
         this.engine.set('activeImage', newIndex);
@@ -104,5 +107,13 @@ class UI {
         clearInterval(this._intervalId);
         this.engine.set('playText', this.playPause[0]);
         this.engine.set('rotating', false);
+    }
+
+    addImage(img) {
+        const images = this.engine.get('images');
+        if (images.indexOf(img) === -1) {
+            images.push(img);
+            this.engine.set('images', images);
+        }
     }
 }
