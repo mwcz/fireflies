@@ -1,5 +1,5 @@
 {
-  "name": "sap",
+  "name": "fireflies",
   "version": "1.0.0",
   "description": "A particle engine using image masks.",
   "main": "index.js",

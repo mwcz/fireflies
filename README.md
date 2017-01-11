@@ -1,6 +1,6 @@
-# sap.js
+# Fireflies
 
-A library for drifting particles from one place to another.
+A WebGL demo for drifting particles from one place to another.
 
 ## Setup
 
