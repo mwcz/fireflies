@@ -36,9 +36,9 @@ let view = new ParticleView({
 
 const previewImages = [
     'masks/fireflies.jpg',
-    'masks/three.png',
     'masks/heart.png',
     'masks/spiral.png',
+    'masks/three.png',
     'masks/face.png',
     'masks/tux.jpg',
     'masks/lorenschmidt.jpg',

@@ -61,13 +61,18 @@
                 border-bottom: 1px dotted;
                 border-color: #b53a36;
             }
-            #thumbs {}
+            #thumbs {
+                background: rgba(255,255,255,0.1);
+                padding: 0px 4px;
+                margin-top: 12px;
+            }
             #thumbs img:first-child {
                 margin-left: 0;
             }
             #thumbs img {
                 height: 40px;
-                margin: 8px 4px;
+                margin: 4px 2px;
+                border-radius: 6px;
                 outline: none;
                 opacity: 0.4;
                 border: 2px solid transparent;
@@ -154,16 +159,16 @@
         <script id='template' type='text/ractive'>
             {{ #if show }}
             <h1>FIRE<span class="flies">FLIES</span></h1>
-            <p>A WebGL demo by <a href="https://twitter.com/mwcz">@mwcz</a>.</p>
             <div id="menu">
-                <p>Draw shapes with particles.  Chose an image below or drag and drop your own images.</p>
-                <div title="Play / Pause" class="{{ rotating ? 'playing' : '' }}" on-click="togglePlay" id="playpause">{{{ playText }}}</div>
+                <p>These friendly fireflies will draw pictures for you.  Chose an image below or <strong>drag and drop your own images.</strong></p>
+                <div title="Play / Pause slidshow" class="{{ rotating ? 'playing' : '' }}" on-click="togglePlay" id="playpause">{{{ playText }}}</div>
                 <div id="thumbs">
                 {{ #each images:i }}
                     <img on-click="setImageButton" {{ #if activeImage === i }}class="active"{{ /if }} src="{{ images[i] }}">
                 {{ /each }}
                 </div>
             </div>
+            <p>A WebGL demo by <a href="https://twitter.com/mwcz">@mwcz</a>.</p>
             <p><a href="http://palebluepixel.org">&larr; More demos</a></p>
             {{ /if }}
             <a id="toggle" on-click="toggle">{{ toggleText }}</a>
