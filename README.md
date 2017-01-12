@@ -2,7 +2,7 @@
 
 # Fireflies
 
-A WebGL demo for drifting particles from one place to another.
+A WebGL demo of drawing shapes with drifting particles.
 
 ## Setup
 
