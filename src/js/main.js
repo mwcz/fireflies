@@ -71,9 +71,9 @@ dz.ondrop = dropData => {
     dropData.files.forEach(f => {
         const reader = new FileReader();
         reader.addEventListener('load', () => {
-            ui.addImage(reader.result);
+            const imgIndex = ui.addImage(reader.result);
             ui.stopRotate();
-            ui.setImageByIndex(-1);
+            ui.setImageByIndex(imgIndex);
         });
         reader.readAsDataURL( f.file );
     });

@@ -111,9 +111,12 @@ class UI {
 
     addImage(img) {
         const images = this.engine.get('images');
-        if (images.indexOf(img) === -1) {
+        let index = images.indexOf(img);
+        if (index === -1) {
             images.push(img);
             this.engine.set('images', images);
+            index = images.length - 1;
         }
+        return index;
     }
 }
