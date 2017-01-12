@@ -1,5 +1,7 @@
 ![fireflies title image](src/title.png)
 
+[Live demo](http://palebluepixel.org/static/projects/fireflies/)
+
 # Fireflies
 
 A WebGL demo of drawing shapes with drifting particles.
