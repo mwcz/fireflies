@@ -14,8 +14,8 @@ class ParticleView {
         this.color = color;
         this.flee = flee;
 
-        flee.distance = flee.distance || 10;
-        flee.proximity = flee.proximity || 40;
+        flee.distance = flee.distance || 0;
+        flee.proximity = flee.proximity || 0;
         flee.reflex = flee.reflex || 0;
 
         fidget.speed = fidget.speed || 0.1;
@@ -200,10 +200,12 @@ class ParticleView {
             this.fleeVector.sub(this.flyVector);
 
             const mouseDist = this.fleeVector.length();
+            const distN = (this.flee.proximity - Math.max(0, Math.min(this.flee.proximity, mouseDist))) / this.flee.proximity; // normalized distance
 
-            const scale = this.flee.distance * (this.flee.proximity - Math.max(0, Math.min(this.flee.proximity, mouseDist))) / this.flee.proximity;
+            const I = this.tween.xfunc(distN, 0, 1, 1);
 
-            this.fleeVector.normalize().multiplyScalar(this.fidgetSpeed[i3]).normalize().multiplyScalar(-scale);
+            this.fleeVector.normalize().multiplyScalar(-I*this.flee.distance);
+            // this.fleeVector.normalize().multiplyScalar(-I * this.flee.distance * this.fidgetSpeed[i3]);
 
             this.fleeOffsetTarget[i3] = this.fleeVector.x;
             this.fleeOffsetTarget[i3+1] = this.fleeVector.y;
@@ -219,23 +221,24 @@ class ParticleView {
     }
     updatePositionsTween() {
         const t = this.clock.getElapsedTime();
+        const fleeDistance = this.flee.distance === 0 ? 0 : 1 / this.flee.distance;
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             if (this.opacity[i] === 0) break;
             const x     = this.positions[ i3 + 0 ];
             const y     = this.positions[ i3 + 1 ];
             const xdest = this.destinations[ i3 + 0 ];
             const ydest = this.destinations[ i3 + 1 ];
+            const fleex = this.fleeOffset[ i3 + 0 ];
+            const fleey = this.fleeOffset[ i3 + 1 ];
             const fsx   = this.fidgetSpeed[ i3 + 0 ];
             const fsy   = this.fidgetSpeed[ i3 + 1 ];
-            const fdx   = this.fidgetDistance[ i3 + 0 ];
-            const fdy   = this.fidgetDistance[ i3 + 1 ];
+            const fdx   = this.fidgetDistance[ i3 + 0 ] * (1 + fleex * fleeDistance);
+            const fdy   = this.fidgetDistance[ i3 + 1 ] * (1 + fleey * fleeDistance);
             const time  = this.tweenTimer[i];
             const travelx = this.tween.xfunc(time, x, xdest-x, this.tween.duration);
             const travely = this.tween.yfunc(time, y, ydest-y, this.tween.duration);
             const fidgetx = Math.sin(t*fsx) * fdx;
             const fidgety = Math.cos(t*fsy) * fdy;
-            const fleex = this.fleeOffset[ i3 + 0 ];
-            const fleey = this.fleeOffset[ i3 + 1 ];
             const xnew  = travelx + fidgetx + fleex;
             const ynew  = travely - fidgety + fleey;
             this.positions[ i3 + 0 ] = xnew;
