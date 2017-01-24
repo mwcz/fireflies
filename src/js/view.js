@@ -1,10 +1,22 @@
 class ParticleView {
-    constructor({size=10, count = 10000, fidget={}, color={}, tween={}} = {}) {
+    constructor({
+        size=10,
+        count = 10000,
+        fidget={},
+        color={},
+        tween={},
+        flee={}
+    } = {}) {
         this.count = count;
         this.fidget = fidget;
         this.tween = tween;
         this.size = size;
         this.color = color;
+        this.flee = flee;
+
+        flee.distance = flee.distance || 10;
+        flee.proximity = flee.proximity || 40;
+        flee.reflex = flee.reflex || 0;
 
         fidget.speed = fidget.speed || 0.1;
         fidget.distance = fidget.distance || 0.1;
@@ -52,13 +64,15 @@ class ParticleView {
         this.destinations = new Float32Array( this.count * 3 );
         this.fidgetSpeed = new Float32Array( this.count * 3 );
         this.fidgetDistance = new Float32Array( this.count * 3 );
+        this.fleeOffset = new Float32Array( this.count * 3 );
+        this.fleeOffsetTarget = new Float32Array( this.count * 3 );
         this.colors = new Float32Array( this.count * 3 );
         this.colorTargets = new Float32Array( this.count * 3 );
         this.opacity = new Float32Array( this.count );
         this.opacityDest = new Float32Array( this.count );
         this.tweenTimer = new Float32Array( this.count );
         this.sizes = new Float32Array( this.count );
-        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             this.positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * 40;
             this.positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * 40;
             this.opacity[ i ] = 1;
@@ -93,12 +107,46 @@ class ParticleView {
         this.uniforms       = uniforms;
         this.geometry       = geometry;
         this.setViewportRelativeFields();
+        this.initRaycaster();
+        this.initMouse();
+    }
+    initMouse() {
+        this.mouseNDC = new THREE.Vector2(9999, 9999); // Normalized Device Coordinates
+        this.mouse = new THREE.Vector2(9999, 9999);
+        this.fleeVector = new THREE.Vector2();
+        this.flyVector = new THREE.Vector2();
+        document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+    }
+    onMouseMove(evt) {
+        this.mouseDetected = true;
+        evt.preventDefault();
+        this.mouseNDC.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this.mouseNDC.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    }
+    updateRaycaster() {
+        if (this.mouseDetected) {
+            this.raycaster.setFromCamera(this.mouseNDC, this.camera);
+            const int = this.raycaster.intersectObject(this.mousePlane);
+            if (int && int[0] && int[0].point) {
+                this.mouse.copy(int[0].point);
+            }
+        }
+    }
+    initRaycaster() {
+        // make an invisible plane to shoot rays at
+        this.raycaster = new THREE.Raycaster();
+        const geo = new THREE.PlaneGeometry(1000, 1000);
+        const mat = new THREE.MeshBasicMaterial({ visible: false });
+        this.mousePlane = new THREE.Mesh(geo, mat);
+        this.scene.add(this.mousePlane);
     }
     render() {
+        this.updateRaycaster();
         this.updateTweenTimers();
         this.updatePositionsTween();
         this.updateOpacityTween();
         this.updateColorTween();
+        this.updateFleeOffsets();
         this.renderer.render( this.scene, this.camera );
     }
     onWindowResize() {
@@ -110,7 +158,7 @@ class ParticleView {
         this.setViewportRelativeFields();
     }
     setViewportRelativeFields() {
-        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             this.fidgetDistance[ i3 + 0 ] = this.fidget.distance * (Math.random() - 0.5);
             this.fidgetDistance[ i3 + 1 ] = this.fidgetDistance[ i3 + 0 ];
             this.sizes[ i ] = this.heightScale * this.size + Math.random()*this.size/2;
@@ -122,7 +170,7 @@ class ParticleView {
         this.render();
     }
     updateColorTween() {
-        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             const c = this.colors[i];
             const cTarget = this.colorTargets[i];
             const time = this.tweenTimer[i];
@@ -134,7 +182,7 @@ class ParticleView {
         this.geometry.attributes.customColor.needsUpdate = true;
     }
     updateOpacityTween() {
-        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             const o = this.opacity[i];
             const oDest = this.opacityDest[i];
             const time = this.tweenTimer[i];
@@ -143,6 +191,27 @@ class ParticleView {
         }
         this.geometry.attributes.opacity.needsUpdate = true;
     }
+    updateFleeOffsets() {
+        const F = this.flee.reflex;
+        for ( let i = 0, i3 = 0; i < this.count; i++, i3 = i3 + 3 ) {
+            this.flyVector.set(this.positions[i3], this.positions[i3+1]);
+            this.fleeVector.copy(this.mouse);
+
+            this.fleeVector.sub(this.flyVector);
+
+            const mouseDist = this.fleeVector.length();
+
+            const scale = this.flee.distance * (this.flee.proximity - Math.max(0, Math.min(this.flee.proximity, mouseDist))) / this.flee.proximity;
+
+            this.fleeVector.normalize().multiplyScalar(this.fidgetSpeed[i3]).normalize().multiplyScalar(-scale);
+
+            this.fleeOffsetTarget[i3] = this.fleeVector.x;
+            this.fleeOffsetTarget[i3+1] = this.fleeVector.y;
+
+            this.fleeOffset[i3+0] = (1 - F) * this.fleeOffset[i3+0] + F * this.fleeOffsetTarget[i3+0];
+            this.fleeOffset[i3+1] = (1 - F) * this.fleeOffset[i3+1] + F * this.fleeOffsetTarget[i3+1];
+        }
+    }
     updateTweenTimers() {
         for ( let i = 0; i < this.count; i++ ) {
             this.tweenTimer[i] = Math.min(this.tweenTimer[i] + 1, this.tween.duration);
@@ -150,25 +219,34 @@ class ParticleView {
     }
     updatePositionsTween() {
         const t = this.clock.getElapsedTime();
-        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 += 3 ) {
+        for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             if (this.opacity[i] === 0) break;
-            const x = this.positions[ i3 + 0 ];
-            const y = this.positions[ i3 + 1 ];
+            const x     = this.positions[ i3 + 0 ];
+            const y     = this.positions[ i3 + 1 ];
             const xdest = this.destinations[ i3 + 0 ];
             const ydest = this.destinations[ i3 + 1 ];
-            const fsx = this.fidgetSpeed[ i3 + 0 ];
-            const fsy = this.fidgetSpeed[ i3 + 1 ];
-            const fdx = this.fidgetDistance[ i3 + 0 ];
-            const fdy = this.fidgetDistance[ i3 + 1 ];
-            const time = this.tweenTimer[i];
-            const xnew = this.tween.xfunc(time, x, xdest-x, this.tween.duration) + Math.sin(t*fsx) * fdx;
-            const ynew = this.tween.yfunc(time, y, ydest-y, this.tween.duration) - Math.cos(t*fsy) * fdy;
-            //                         current position + destination position + fidget
+            const fsx   = this.fidgetSpeed[ i3 + 0 ];
+            const fsy   = this.fidgetSpeed[ i3 + 1 ];
+            const fdx   = this.fidgetDistance[ i3 + 0 ];
+            const fdy   = this.fidgetDistance[ i3 + 1 ];
+            const time  = this.tweenTimer[i];
+            const travelx = this.tween.xfunc(time, x, xdest-x, this.tween.duration);
+            const travely = this.tween.yfunc(time, y, ydest-y, this.tween.duration);
+            const fidgetx = Math.sin(t*fsx) * fdx;
+            const fidgety = Math.cos(t*fsy) * fdy;
+            const fleex = this.fleeOffset[ i3 + 0 ];
+            const fleey = this.fleeOffset[ i3 + 1 ];
+            const xnew  = travelx + fidgetx + fleex;
+            const ynew  = travely - fidgety + fleey;
             this.positions[ i3 + 0 ] = xnew;
             this.positions[ i3 + 1 ] = ynew;
-            // this.positions[ i3 + 2 ] = RATIO * this.positions[ i3 + 2 ] + (1 - RATIO) * this.destinations[ i3 + 2 ] + Math.sin(t) * this.fidgetArray[ i3 + 2 ];
         }
         this.geometry.attributes.position.needsUpdate = true;
+    }
+    mouseFlee(x=0, y=0) {
+        const m = new THREE.Vector2(x, y);
+
+        return m;
     }
     shape(dotterResult) {
         const w = dotterResult.original.canvas.el.width/6;
@@ -183,7 +261,7 @@ class ParticleView {
         //     this.destinations[i3]   = x * w;
         //     this.destinations[i3+1] = y * h;
         // }
-        for ( let i = 0, i2 = 0, i3 = 0; i < this.count; i++, i2 += 2, i3 += 3 ) {
+        for ( let i = 0, i2 = 0, i3 = 0; i < this.count; i++, i2 = i2 + 2, i3 = i3 + 3 ) {
             if (i2 < dotterResult.dots.length) {
                 // update destinations for each particle which has a corresponding destination
                 const x = dotterResult.dots[i2] - 0.5;

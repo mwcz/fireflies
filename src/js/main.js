@@ -22,7 +22,12 @@ let view = new ParticleView({
     },
     fidget: {
         speed: 2.4,
-        distance: 1.4,
+        distance: 1.9,
+    },
+    flee: {
+        distance: 16,
+        proximity: 30,
+        reflex: 0.06,
     },
     tween: {
         duration: 500, // fps
