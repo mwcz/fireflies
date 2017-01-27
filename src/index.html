@@ -129,6 +129,9 @@
                     display: inline;
                 }
             }
+            #toggleFleeLabel {
+                color: grey;
+            }
             @keyframes reveal {
                 from { opacity: 0; }
                 to   { opacity: 1; }
@@ -177,6 +180,9 @@
                 {{ /each }}
                 </div>
             </div>
+            <p>
+                <label id="toggleFleeLabel"><input type="checkbox" id="toggleFlee" on-click="toggleFlee">Flee from mouse</label>
+            </p>
             <p>A WebGL demo by <a href="https://twitter.com/mwcz">@mwcz</a>.</p>
             <p><a href="https://github.com/mwcz/fireflies">&rarr; View source</a></p>
             <p><a href="http://palebluepixel.org">&larr; More demos</a></p>

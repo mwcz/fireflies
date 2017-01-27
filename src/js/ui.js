@@ -81,6 +81,10 @@ class UI {
         });
     }
 
+    onToggleFlee(f) {
+        this.engine.on('toggleFlee', f);
+    }
+
     setImageByIndex(index) {
         const imageCount = this.engine.get('images').length;
         if (index === -1) {

@@ -24,11 +24,6 @@ let view = new ParticleView({
         speed: 2.4,
         distance: 1.9,
     },
-    // flee: {
-    //     distance: 16,
-    //     proximity: 30,
-    //     reflex: 0.06,
-    // },
     tween: {
         duration: 500, // fps
         xfunc: Tween.easeInOutCubic,
@@ -62,6 +57,21 @@ ui.onSetImage(img => {
 // show the first image and start rotation
 ui.setImageByIndex(0);
 ui.startRotate();
+
+// wirte up the flee from mouse checkbox
+
+ui.onToggleFlee(evt => {
+    if (evt.node.checked) {
+        view.flee.distance = 16;
+        view.flee.proximity = 40;
+        view.flee.reflex = 0.06;
+    }
+    else {
+        view.flee.distance = 0;
+        view.flee.proximity = 0;
+        view.flee.reflex = 0;
+    }
+});
 
 // wire up drag and drop
 
