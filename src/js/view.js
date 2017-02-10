@@ -120,8 +120,8 @@ class ParticleView {
     onMouseMove(evt) {
         this.mouseDetected = true;
         evt.preventDefault();
-        this.mouseNDC.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.mouseNDC.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        this.mouseNDC.x = ( evt.clientX / window.innerWidth ) * 2 - 1;
+        this.mouseNDC.y = - ( evt.clientY / window.innerHeight ) * 2 + 1;
     }
     updateRaycaster() {
         if (this.mouseDetected) {
