@@ -4,7 +4,7 @@
   "description": "A particle engine using image masks.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run build",
     "start": "browser-sync start --server --serveStatic src --files 'src/**/*' --no-inject-changes --directory",
     "build": "babel src --out-dir dist --copy-files --presets=env"
   },
