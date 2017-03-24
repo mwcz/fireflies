@@ -248,10 +248,13 @@ class ParticleView {
     }
     mouseFlee(x=0, y=0) {
         const m = new THREE.Vector2(x, y);
-
         return m;
     }
     shape(dotterResult) {
+        if (dotterResult.dots.length === 0) {
+            console.log('[view] refusing to render empty dotterResult');
+            return;
+        }
         const w = dotterResult.original.canvas.el.width/6;
         const h = dotterResult.original.canvas.el.height/6;
         const color = new THREE.Color();
