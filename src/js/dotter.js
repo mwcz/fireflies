@@ -22,8 +22,9 @@ class Dotter {
             (resolve, reject) => {
                 if (typeof src === 'string') {
                     let img = new Image();
-                    img.onload = evt => resolve(evt.target);
-                    img.onerror = reject;
+                    img.addEventListener('load', evt => resolve(evt.target));
+                    img.addEventListener('error', reject);
+                    console.log('[dotter] setting img.src');
                     img.src = src;
                 }
                 else {
