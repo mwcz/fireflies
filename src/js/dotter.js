@@ -35,6 +35,7 @@ class Dotter {
     }
 
     _processImage(image) {
+        console.log('[dotter] processing image');
         const canvas = this._drawCanvas(image);
         const pixels = this._getPixels(canvas);
         const dots = this._sample(canvas, pixels);
@@ -51,11 +52,17 @@ class Dotter {
     }
 
     _drawCanvas(img) {
+        console.log('[dotter] drawing image onto canvas');
         const el = document.createElement('canvas');
         const ctx = el.getContext('2d');
         el.width = img.width;
         el.height = img.height;
         ctx.drawImage(img, 0, 0);
+
+        const pixels = this._getPixels({ el, ctx });
+        const max = _.max(pixels.data);
+        const min = _.min(pixels.data);
+        console.log(`[dotter] before filters: ${min}..${max}`);
 
         // call any registered filters on this canvas
 
@@ -65,6 +72,7 @@ class Dotter {
     }
 
     _getPixels(canvas) {
+        console.log('[dotter] getting pixels from canvas');
         return canvas.ctx.getImageData(0, 0, canvas.el.width, canvas.el.height);
     }
 
@@ -78,7 +86,7 @@ class Dotter {
 
         const step = Math.floor(1 / this.density);
 
-        console.log(`step: ${step}`);
+        console.log(`[dotter] step: ${step}`);
 
         let i = 0;
         let r = 0;
@@ -104,9 +112,15 @@ class Dotter {
             }
         }
 
-        console.log(`${points.length/2} points found`);
+        console.log(`[dotter] ${points.length/2} points found`);
         this._drawPoints(canvas, points);
         // document.body.appendChild(canvas.el);
+        // canvas.el.style.bottom = '0px';
+        // canvas.el.style.right = '0px';
+        // canvas.el.style.zIndex = '10000';
+        // canvas.el.style.border = '2px solid red';
+        // canvas.el.style.width = '400px';
+        // canvas.el.style.height = '400px';
 
         return points;
     }
