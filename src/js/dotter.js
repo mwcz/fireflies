@@ -59,11 +59,6 @@ class Dotter {
         el.height = img.height;
         ctx.drawImage(img, 0, 0);
 
-        const pixels = this._getPixels({ el, ctx });
-        const max = _.max(pixels.data);
-        const min = _.min(pixels.data);
-        console.log(`[dotter] before filters: ${min}..${max}`);
-
         // call any registered filters on this canvas
 
         this.filters.forEach(filter => filter({ el, ctx }));
