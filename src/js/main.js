@@ -7,7 +7,8 @@ let dotter = new Dotter({
     density: 0.095,
 });
 
-dotter.addFilter(Bitter.scale);
+// scale is broken in firefox/safari, disabling for now
+// dotter.addFilter(Bitter.scale);
 dotter.addFilter(Bitter.threshold);
 
 // create a particle view
