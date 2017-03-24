@@ -1,7 +1,4 @@
 class Bitter {
-    constructor() {
-    }
-
     static scale({ el, ctx }) {
         const TOTAL_PIXELS = 4e5;
         const ASPECT = el.width / el.height;
@@ -9,12 +6,14 @@ class Bitter {
         const NEW_HEIGHT = NEW_WIDTH / ASPECT;
         const img = document.createElement('img');
         img.src = el.toDataURL();
-        // img.width = NEW_WIDTH;
-        // img.height = NEW_HEIGHT;
-        el.width = NEW_WIDTH;
-        el.height = NEW_HEIGHT;
-        console.log(`resized image to ${NEW_WIDTH} x ${NEW_HEIGHT}`);
+        // el.width = NEW_WIDTH; // this causes the canvas to go blank in firefox
+        // el.height = NEW_HEIGHT; // this causes the canvas to go blank in firefox
+        // ctx.scale(NEW_WIDTH / el.width, NEW_HEIGHT / el.height); // not sure if this works
+        console.log(`[bitter] resized image to ${NEW_WIDTH} x ${NEW_HEIGHT}`);
         ctx.drawImage(img, 0, 0, NEW_WIDTH, NEW_HEIGHT);
+        el.style.border = '2px solid red';
+        document.body.appendChild(el);
+        debugger;
     }
 
     static threshold({ el, ctx }) {
@@ -29,7 +28,7 @@ class Bitter {
             );
             data[i-3] = data[i-2] = data[i-1] = ( b >= THRESHOLD ) ?  255: 0;
         }
-        console.log(`thresholded image to black and white`);
+        console.log(`[bitter] thresholded image to black and white`);
         ctx.putImageData(imagedata, 0, 0);
     }
 }
