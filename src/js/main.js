@@ -81,8 +81,8 @@ const dz = new Drop({
     dropEffect: 'copy',
 });
 
-dz.ondragenter = () => console.log('drag enter');
-dz.ondragleave = () => console.log('drag leave');
+dz.ondragenter = () => console.log('[main] drag enter');
+dz.ondragleave = () => console.log('[main] drag leave');
 dz.ondrop = dropData => {
     dropData.files.forEach(f => {
         const reader = new FileReader();
