@@ -39,6 +39,7 @@ const previewImages = [
     'masks/fireflies.jpg',
     'masks/heart.png',
     'masks/spiral.png',
+    'masks/three.png',
     'masks/face.png',
     'masks/tux.jpg',
     'masks/lorenschmidt.jpg',
