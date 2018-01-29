@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run build",
     "start": "browser-sync start --server --serveStatic src --files 'src/**/*' --no-inject-changes --directory",
-    "build": "babel src --out-dir dist --copy-files --presets=env"
+    "build": "babel src --out-dir dist --copy-files --presets=env && for f in dist/js/*.js; do uglifyjs -c -o $f $f && gzip $f; done"
   },
   "author": "mwcz <mwc@clayto.com>",
   "license": "GPL-3.0",
@@ -16,4 +16,3 @@
     "browser-sync": "^2.18.2"
   }
 }
-

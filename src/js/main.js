@@ -2,9 +2,9 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 // create a dotter
 
-let dotter = new Dotter({
+const dotter = new Dotter({
     jitter: 1.0,
-    density: 0.095,
+    density: 0.195,
 });
 
 // scale is broken in firefox/safari, disabling for now
@@ -13,17 +13,17 @@ dotter.addFilter(Bitter.threshold);
 
 // create a particle view
 
-let view = new ParticleView({
-    size: 14,
-    count: 14000,
+const view = new ParticleView({
+    size: 8,
+    count: 6000,
     color: {
-        top: '#FFA317',
-        bottom: '#E6141B',
-        background: '#252142',
+        top: '#ADCFFF',
+        bottom: '#6FA5F2',
+        background: '#000000',
     },
     fidget: {
         speed: 2.4,
-        distance: 1.9,
+        distance: 2.2,
     },
     tween: {
         duration: 500, // fps
@@ -31,68 +31,26 @@ let view = new ParticleView({
         yfunc: Tween.easeInOutCubic,
         ofunc: Tween.easeInOutCubic,
     },
+    // flee: {
+    //     distance: 5,
+    //     proximity: 40,
+    //     reflex: 0.03,
+    // },
 });
 
-// some images to start with
+// rotate through these pictures
 
-const previewImages = [
-    'masks/fireflies.jpg',
-    'masks/heart.png',
-    'masks/spiral.png',
-    'masks/three.png',
-    'masks/face.png',
-    'masks/tux.jpg',
-    'masks/lorenschmidt.jpg',
+const masks = [
+    '../masks/pbp.png',
+    '../masks/three.png',
+    '../masks/tux.jpg',
 ];
-
-// start the Ui
-
-const ui = new UI(previewImages);
 
 // wire up ui to particleview
 
-ui.onSetImage(img => {
-    dotter.process(img).then(view.shape.bind(view));
-});
-
-// show the first image and start rotation
-ui.setImageByIndex(0);
-ui.startRotate();
-
-// wirte up the flee from mouse checkbox
-
-ui.onToggleFlee(evt => {
-    if (evt.node.checked) {
-        view.flee.distance = 16;
-        view.flee.proximity = 40;
-        view.flee.reflex = 0.06;
-    }
-    else {
-        view.flee.distance = 0;
-        view.flee.proximity = 0;
-        view.flee.reflex = 0;
-    }
-});
-
-// wire up drag and drop
-
-const dz = new Drop({
-    node: 'body',
-    dropEffect: 'copy',
-});
-
-dz.ondragenter = () => console.log('[main] drag enter');
-dz.ondragleave = () => console.log('[main] drag leave');
-dz.ondrop = dropData => {
-    dropData.files.forEach(f => {
-        const reader = new FileReader();
-        reader.addEventListener('load', () => {
-            const imgIndex = ui.addImage(reader.result);
-            ui.stopRotate();
-            ui.setImageByIndex(imgIndex);
-        });
-        reader.readAsDataURL( f.file );
-    });
-};
-
-document.ondrop = document.ondragover = function(e) { e.preventDefault(); };
+let i = 0;
+setInterval(() => {
+    dotter.process(masks[i]).then(view.shape.bind(view));
+    i += 1;
+    i %= masks.length;
+}, 8000);
