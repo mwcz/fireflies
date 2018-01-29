@@ -5,7 +5,9 @@ class ParticleView {
         fidget={},
         color={},
         tween={},
-        flee={}
+        flee={},
+        canvas={width:400,height:300},
+        sprite='spark1.png',
     } = {}) {
         this.count = count;
         this.fidget = fidget;
@@ -13,6 +15,9 @@ class ParticleView {
         this.size = size;
         this.color = color;
         this.flee = flee;
+        this.canvas = canvas;
+        this.sprite = sprite;
+        console.log(canvas);
 
         flee.distance = flee.distance || 0;
         flee.proximity = flee.proximity || 0;
@@ -36,8 +41,8 @@ class ParticleView {
     init() {
         let renderer, scene, camera;
         let particleSystem, uniforms, geometry;
-        let WIDTH = window.innerWidth;
-        let HEIGHT = window.innerHeight;
+        let WIDTH = this.canvas.width;
+        let HEIGHT = this.canvas.height;
         this.heightScale = HEIGHT / 1000;
         this.widthScale = WIDTH / 1000;
         this.clock = new THREE.Clock();
@@ -46,7 +51,7 @@ class ParticleView {
         scene = new THREE.Scene();
         uniforms = {
             color:     { value: new THREE.Color( 0xffffff ) },
-            texture:   { value: new THREE.TextureLoader().load( "spark1.png" ) }
+            texture:   { value: new THREE.TextureLoader().load( this.sprite ) }
         };
         let shaderMaterial = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
@@ -73,8 +78,11 @@ class ParticleView {
         this.tweenTimer       = new Float32Array( this.count );
         this.sizes            = new Float32Array( this.count );
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
-            this.positions[ i3 + 0 ]      = ( Math.random() * 2 - 1 ) * 40;
-            this.positions[ i3 + 1 ]      = ( Math.random() * 2 - 1 ) * 40;
+            ;
+            this.positions[ i3 + 0 ]      = (1 + Math.cos((Math.PI*( Math.random() * 2 - 1 )))) / (2*Math.PI);
+            this.positions[ i3 + 1 ]      = (1 + Math.cos((Math.PI*( Math.random() * 2 - 1 )))) / (2*Math.PI);
+            // this.positions[ i3 + 0 ]      = ( Math.random() * 2 - 1 ) * 80;
+            // this.positions[ i3 + 1 ]      = ( Math.random() * 2 - 1 ) * 80;
             this.opacity[ i ]             = 1;
             this.fidgetSpeed[ i3 + 0 ]    = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 1 ]    = this.fidget.speed * Math.random() + 0.1;
@@ -284,7 +292,8 @@ class ParticleView {
             }
             else {
                 const dotCount3 = dotterResult.dots.length * 3/2;
-                // for particles without a destination in this mask image, hide them and move them to the same location as a living particle
+                // for particles without a destination in this mask image, hide
+                // them and move them to the same location as a living particle
                 this.destinations[i3]   = this.destinations[ (i3+0) % dotCount3 ];
                 this.destinations[i3+1] = this.destinations[ (i3+1) % dotCount3 ];
                 this.opacityDest[i] = 0;

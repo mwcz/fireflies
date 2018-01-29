@@ -3,6 +3,8 @@ class Dotter {
         this.density = density;
         this.jitter = jitter;
         this.filters = [];
+        this.imgCache = {};
+        this.dotCache = {};
     }
 
     process(src) {
@@ -20,12 +22,19 @@ class Dotter {
     _fetchImage(src) {
         return new Promise(
             (resolve, reject) => {
-                if (typeof src === 'string') {
+                // use cached image if available
+                if (this.imgCache[src]) {
+                    resolve(this.imgCache[src]);
+                }
+                else if (typeof src === 'string') {
                     let img = new Image();
                     img.addEventListener('load', evt => resolve(evt.target));
                     img.addEventListener('error', reject);
                     console.log('[dotter] setting img.src');
                     img.src = src;
+
+                    // cache the image
+                    this.imgCache[src] = img;
                 }
                 else {
                     resolve(src);
@@ -35,12 +44,18 @@ class Dotter {
     }
 
     _processImage(image) {
-        console.log('[dotter] processing image');
+        // use cached dots if available
+        if (this.dotCache[image.src]) {
+            console.log(`[dotter] using cached dots for ${image.src}`);
+            return this.dotCache[image.src];
+        }
+
+        console.log(`[dotter] processing dots for ${image.src}`);
         const canvas = this._drawCanvas(image);
         const pixels = this._getPixels(canvas);
         const dots = this._sample(canvas, pixels);
 
-        return {
+        const dotObj = {
             dots,
             original: {
                 image,
@@ -49,6 +64,11 @@ class Dotter {
                 aspect: canvas.width / canvas.height,
             },
         };
+
+        // cache the dots
+        this.dotCache[image.src] = dotObj;
+
+        return dotObj;
     }
 
     _drawCanvas(img) {

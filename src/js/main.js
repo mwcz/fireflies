@@ -18,7 +18,7 @@ const view = new ParticleView({
     count: 6000,
     color: {
         top: '#ADCFFF',
-        bottom: '#6FA5F2',
+        bottom: '#4579C4',
         background: '#000000',
     },
     fidget: {
@@ -31,6 +31,11 @@ const view = new ParticleView({
         yfunc: Tween.easeInOutCubic,
         ofunc: Tween.easeInOutCubic,
     },
+    canvas: {
+        width: 960,
+        height: 720,
+    },
+    sprite: 'spark1.png',
     // flee: {
     //     distance: 5,
     //     proximity: 40,
@@ -41,16 +46,28 @@ const view = new ParticleView({
 // rotate through these pictures
 
 const masks = [
+    // '../masks/dot.png',
     '../masks/pbp.png',
-    '../masks/three.png',
-    '../masks/tux.jpg',
+    '../masks/js.png',
+    '../masks/wasm.png',
+    '../masks/tux.png',
 ];
 
 // wire up ui to particleview
 
+// process first mask
+// rotate through subsequent masks on a timer
 let i = 0;
-setInterval(() => {
+let tid = 0;
+const next = () => {
     dotter.process(masks[i]).then(view.shape.bind(view));
     i += 1;
     i %= masks.length;
-}, 8000);
+    if (tid) {
+        clearTimeout(tid);
+        console.log(`[main] cleared pending mask (tid: ${tid})`);
+    }
+    tid = setTimeout(next, 10000);
+}
+next();
+view.renderer.domElement.addEventListener('click', next);
