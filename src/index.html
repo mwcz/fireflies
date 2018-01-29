@@ -27,32 +27,6 @@
 
         <div id="container"></div>
 
-        <script type="x-shader/x-vertex" id="vertexshader">
-            attribute float size;
-            attribute float opacity;
-            attribute vec3 customColor;
-            varying vec3 vColor;
-            varying float vOpacity;
-            void main() {
-                vColor = customColor;
-                vOpacity = opacity;
-                vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-                gl_PointSize = size * ( 300.0 / -mvPosition.z );
-                gl_Position = projectionMatrix * mvPosition;
-            }
-        </script>
-
-        <script type="x-shader/x-fragment" id="fragmentshader">
-            uniform vec3 color;
-            uniform sampler2D texture;
-            varying vec3 vColor;
-            varying float vOpacity;
-            void main() {
-                gl_FragColor = vec4( color * vColor, vOpacity );
-                gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-            }
-        </script>
-
         <!-- third party -->
         <script src="lib/three.min.js"></script>
         <script src="lib/es6-promise.min.js"></script>

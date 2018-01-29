@@ -6,7 +6,14 @@
   "scripts": {
     "test": "npm run build",
     "start": "browser-sync start --server --serveStatic src --files 'src/**/*' --no-inject-changes --directory",
-    "build": "babel src --out-dir dist --copy-files --presets=env && for f in dist/js/*.js; do uglifyjs -c -o $f $f; done"
+    "build": "npm run babel && npm run bundle && npm run minify && npm run script-tag-rewrite",
+    "babel": "babel src --out-dir dist --copy-files --presets=env --ignore lib/*",
+    "minify": "for f in dist/js/*.js; do uglifyjs -c -o $f $f; done",
+    "clean": "rm -rf dist/*",
+    "script-tag-rewrite": "./scripts/script-tag-rewrite.sh > dist/index.html",
+    "bundle": "npm run bundle-lib && npm run bundle-js",
+    "bundle-lib": "./scripts/libdump.sh > dist/js/bundle.min.js",
+    "bundle-js": "./scripts/jsdump.sh | babel --presets=env >> dist/js/bundle.min.js"
   },
   "author": "mwcz <mwc@clayto.com>",
   "license": "GPL-3.0",

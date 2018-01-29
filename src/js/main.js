@@ -9,7 +9,7 @@ const dotter = new Dotter({
 
 // scale is broken in firefox/safari, disabling for now
 // dotter.addFilter(Bitter.scale);
-dotter.addFilter(Bitter.threshold);
+// dotter.addFilter(Bitter.threshold);
 
 // create a particle view
 
@@ -18,15 +18,15 @@ const view = new ParticleView({
     count: 6000,
     color: {
         top: '#ADCFFF',
-        bottom: '#4579C4',
+        bottom: '#27508A',
         background: '#000000',
     },
     fidget: {
         speed: 2.4,
-        distance: 2.2,
+        distance: 1.8,
     },
     tween: {
-        duration: 500, // fps
+        duration: 400, // fps
         xfunc: Tween.easeInOutCubic,
         yfunc: Tween.easeInOutCubic,
         ofunc: Tween.easeInOutCubic,
@@ -46,11 +46,10 @@ const view = new ParticleView({
 // rotate through these pictures
 
 const masks = [
-    // '../masks/dot.png',
-    '../masks/pbp.png',
-    '../masks/js.png',
-    '../masks/wasm.png',
-    '../masks/tux.png',
+    './masks/pbp.png',
+    './masks/js.png',
+    './masks/wasm.png',
+    './masks/tux.png',
 ];
 
 // wire up ui to particleview

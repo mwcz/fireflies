@@ -55,8 +55,30 @@ class ParticleView {
         };
         let shaderMaterial = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+            vertexShader:   `
+                attribute float size;
+                attribute float opacity;
+                attribute vec3 customColor;
+                varying vec3 vColor;
+                varying float vOpacity;
+                void main() {
+                    vColor = customColor;
+                    vOpacity = opacity;
+                    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+                    gl_PointSize = size * ( 300.0 / -mvPosition.z );
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 color;
+                uniform sampler2D texture;
+                varying vec3 vColor;
+                varying float vOpacity;
+                void main() {
+                    gl_FragColor = vec4( color * vColor, vOpacity );
+                    gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+                }
+            `,
             blending:       THREE.AdditiveBlending,
             depthTest:      false,
             transparent:    true
@@ -64,8 +86,6 @@ class ParticleView {
         let radius            = 200;
         geometry              = new THREE.BufferGeometry();
         this.positions        = new Float32Array( this.count * 3 );
-        this.velocity         = new Float32Array( this.count * 3 );
-        this.acceleration     = new Float32Array( this.count * 3 );
         this.destinations     = new Float32Array( this.count * 3 );
         this.fidgetSpeed      = new Float32Array( this.count * 3 );
         this.fidgetDistance   = new Float32Array( this.count * 3 );
@@ -76,14 +96,15 @@ class ParticleView {
         this.opacity          = new Float32Array( this.count );
         this.opacityDest      = new Float32Array( this.count );
         this.tweenTimer       = new Float32Array( this.count );
+        this.tweenTimeScale   = new Float32Array( this.count );
         this.sizes            = new Float32Array( this.count );
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             ;
-            this.positions[ i3 + 0 ]      = (1 + Math.cos((Math.PI*( Math.random() * 2 - 1 )))) / (2*Math.PI);
-            this.positions[ i3 + 1 ]      = (1 + Math.cos((Math.PI*( Math.random() * 2 - 1 )))) / (2*Math.PI);
-            // this.positions[ i3 + 0 ]      = ( Math.random() * 2 - 1 ) * 80;
-            // this.positions[ i3 + 1 ]      = ( Math.random() * 2 - 1 ) * 80;
-            this.opacity[ i ]             = 1;
+            // this.positions[ i3 + 0 ]      = (1 + Math.cos((Math.PI*( Math.random() * 2 - 1 )))) / (2*Math.PI);
+            // this.positions[ i3 + 1 ]      = (1 + Math.cos((Math.PI*( Math.random() * 2 - 1 )))) / (2*Math.PI);
+            this.positions[ i3 + 0 ]      = 0;
+            this.positions[ i3 + 1 ]      = 0;
+            this.opacity[ i ]             = 0;
             this.fidgetSpeed[ i3 + 0 ]    = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 1 ]    = this.fidget.speed * Math.random() + 0.1;
             this.fidgetSpeed[ i3 + 2 ]    = 0;
@@ -94,6 +115,7 @@ class ParticleView {
             // this.colors[ i3 + 1 ]      = color.g;
             // this.colors[ i3 + 2 ]      = color.b;
             this.sizes[ i ]               = this.heightScale * this.size + Math.random()*this.size/2;
+            this.tweenTimeScale[ i ]      = Math.min(1.0, Math.max(0.5, Math.random()));
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
         geometry.addAttribute( 'customColor', new THREE.BufferAttribute( this.colors, 3 ) );
@@ -193,7 +215,7 @@ class ParticleView {
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             const o = this.opacity[i];
             const oDest = this.opacityDest[i];
-            const time = this.tweenTimer[i];
+            const time = this.tweenTimer[i] * this.tweenTimeScale[i];
             const onew = this.tween.ofunc(time, o, oDest-o, this.tween.duration);
             this.opacity[i] = onew;
         }
@@ -242,7 +264,7 @@ class ParticleView {
             const fsy   = this.fidgetSpeed[ i3 + 1 ];
             const fdx   = this.fidgetDistance[ i3 + 0 ] * (1 + fleex * fleeDistance);
             const fdy   = this.fidgetDistance[ i3 + 1 ] * (1 + fleey * fleeDistance);
-            const time  = this.tweenTimer[i];
+            const time  = this.tweenTimer[i] * this.tweenTimeScale[i];
             const travelx = this.tween.xfunc(time, x, xdest-x, this.tween.duration);
             const travely = this.tween.yfunc(time, y, ydest-y, this.tween.duration);
             const fidgetx = Math.sin(t*fsx) * fdx;
@@ -303,6 +325,10 @@ class ParticleView {
         this.geometry.attributes.customColor.needsUpdate = true;
 
         // refresh the tween timers
+        for ( let i = 0; i < this.tweenTimer.length; ++i ) {
+            this.tweenTimer[ i ] = Math.random() * 200;
+            // this.tweenTimer[ i ] = 0;
+        }
         this.tweenTimer.fill(0);
     }
 }
