@@ -3,7 +3,7 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 // create a dotter
 
 const dotter = new Dotter({
-    jitter: 1.0,
+    jitter: 0.8,
     density: 0.195,
 });
 
@@ -25,7 +25,8 @@ const view = new ParticleView({
     color: {
         top: '#ADCFFF',
         bottom: '#27508A',
-        background: '#121212',
+        background: '#000000',
+        // background: '#121212',
     },
     fidget: {
         speed: 2.4,
@@ -42,7 +43,7 @@ const view = new ParticleView({
         height: 640,
         domElement: document.querySelector('#fireflies-canvas'),
     },
-    sprite: '/static/js/homepage-fireflies/spark1.png',
+    sprite: '/static/js/homepage-fireflies/pixel.png',
     // flee: {
     //     distance: 5,
     //     proximity: 40,

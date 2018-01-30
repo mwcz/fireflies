@@ -115,7 +115,6 @@ class ParticleView {
             // this.colors[ i3 + 2 ]      = color.b;
             // this.sizes[ i ]               = this.widthScale * this.size + Math.random()*this.size/2;
             this.sizes[ i ]               = this.getPointSize(window.innerWidth);
-            console.log(this.sizes[i]);
             this.tweenTimeScale[ i ]      = Math.min(1.0, Math.max(0.5, Math.random()));
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
@@ -148,7 +147,7 @@ class ParticleView {
         this.mouse = new THREE.Vector2(9999, 9999);
         this.fleeVector = new THREE.Vector2();
         this.flyVector = new THREE.Vector2();
-        document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+        // document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
     }
     getPointSize(width) {
         const maxSize = this.size.max;
