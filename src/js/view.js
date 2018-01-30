@@ -6,7 +6,7 @@ class ParticleView {
         color={},
         tween={},
         flee={},
-        canvas={width:400,height:300},
+        canvas={width:400,height:300,container:document.body},
         sprite='spark1.png',
     } = {}) {
         this.count = count;
@@ -17,7 +17,6 @@ class ParticleView {
         this.flee = flee;
         this.canvas = canvas;
         this.sprite = sprite;
-        console.log(canvas);
 
         flee.distance = flee.distance || 0;
         flee.proximity = flee.proximity || 0;
@@ -126,10 +125,12 @@ class ParticleView {
         renderer = new THREE.WebGLRenderer();
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( WIDTH, HEIGHT );
+        renderer.domElement.setAttribute('style', ''); // width/height attributes are fine, but we want to clear the style attributes so the element can be resized and retain aspect ratio
         renderer.setClearColor(new THREE.Color(this.color.background));
-        document.body.appendChild( renderer.domElement );
+        this.canvas.container.removeChild(this.canvas.container.querySelector('img.placeholder')); // remove the placeholder img
+        this.canvas.container.appendChild( renderer.domElement );
         //
-        window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
+        // window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
         this.renderer       = renderer;
         this.scene          = scene;
         this.camera         = camera;

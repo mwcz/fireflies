@@ -19,7 +19,7 @@ const view = new ParticleView({
     color: {
         top: '#ADCFFF',
         bottom: '#27508A',
-        background: '#000000',
+        background: '#121212',
     },
     fidget: {
         speed: 2.4,
@@ -33,9 +33,10 @@ const view = new ParticleView({
     },
     canvas: {
         width: 960,
-        height: 720,
+        height: 420,
+        container: document.querySelector('#fireflies-container'),
     },
-    sprite: 'spark1.png',
+    sprite: '/static/js/homepage-fireflies/spark1.png',
     // flee: {
     //     distance: 5,
     //     proximity: 40,
@@ -46,10 +47,10 @@ const view = new ParticleView({
 // rotate through these pictures
 
 const masks = [
-    './masks/pbp.png',
-    './masks/js.png',
-    './masks/wasm.png',
-    './masks/tux.png',
+    '/static/js/homepage-fireflies/masks/pbp.png',
+    '/static/js/homepage-fireflies/masks/js.png',
+    '/static/js/homepage-fireflies/masks/wasm.png',
+    '/static/js/homepage-fireflies/masks/tux.png',
 ];
 
 // wire up ui to particleview
