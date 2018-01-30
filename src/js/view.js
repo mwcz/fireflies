@@ -6,7 +6,7 @@ class ParticleView {
         color={},
         tween={},
         flee={},
-        canvas={width:400,height:300,container:document.body},
+        canvas={width:400,height:300},
         sprite='spark1.png',
     } = {}) {
         this.count = count;
@@ -46,7 +46,7 @@ class ParticleView {
         this.widthScale = WIDTH / 1000;
         this.clock = new THREE.Clock();
         camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 1, 10000 );
-        camera.position.z = 260;
+        camera.position.z = 120;
         scene = new THREE.Scene();
         uniforms = {
             color:     { value: new THREE.Color( 0xffffff ) },
@@ -113,7 +113,9 @@ class ParticleView {
             // this.colors[ i3 + 0 ]      = color.r;
             // this.colors[ i3 + 1 ]      = color.g;
             // this.colors[ i3 + 2 ]      = color.b;
-            this.sizes[ i ]               = this.heightScale * this.size + Math.random()*this.size/2;
+            // this.sizes[ i ]               = this.widthScale * this.size + Math.random()*this.size/2;
+            this.sizes[ i ]               = this.getPointSize(window.innerWidth);
+            console.log(this.sizes[i]);
             this.tweenTimeScale[ i ]      = Math.min(1.0, Math.max(0.5, Math.random()));
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
@@ -122,13 +124,13 @@ class ParticleView {
         geometry.addAttribute( 'size', new THREE.BufferAttribute( this.sizes, 1 ) );
         particleSystem = new THREE.Points( geometry, shaderMaterial );
         scene.add( particleSystem );
-        renderer = new THREE.WebGLRenderer();
+        renderer = new THREE.WebGLRenderer({ canvas: this.canvas.domElement });
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( WIDTH, HEIGHT );
         renderer.domElement.setAttribute('style', ''); // width/height attributes are fine, but we want to clear the style attributes so the element can be resized and retain aspect ratio
         renderer.setClearColor(new THREE.Color(this.color.background));
-        this.canvas.container.removeChild(this.canvas.container.querySelector('img.placeholder')); // remove the placeholder img
-        this.canvas.container.appendChild( renderer.domElement );
+        // this.canvas.container.removeChild(this.canvas.container.querySelector('img.placeholder')); // remove the placeholder img
+        // this.canvas.container.appendChild( renderer.domElement );
         //
         // window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
         this.renderer       = renderer;
@@ -147,6 +149,16 @@ class ParticleView {
         this.fleeVector = new THREE.Vector2();
         this.flyVector = new THREE.Vector2();
         document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+    }
+    getPointSize(width) {
+        const maxSize = this.size.max;
+        const minSize = this.size.min;
+        const maxWidth = this.size.maxWidth;
+        const minWidth = this.size.minWidth;
+
+        const spread = this.size.spread;
+
+        return (width - minWidth) * (maxSize - minSize) / (maxWidth - minWidth) + minSize + Math.random() * spread - spread / 2;
     }
     onMouseMove(evt) {
         this.mouseDetected = true;
@@ -192,7 +204,7 @@ class ParticleView {
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             this.fidgetDistance[ i3 + 0 ] = this.fidget.distance * (Math.random() - 0.5);
             this.fidgetDistance[ i3 + 1 ] = this.fidgetDistance[ i3 + 0 ];
-            this.sizes[ i ] = this.heightScale * this.size + Math.random()*this.size/2;
+            this.sizes[ i ] = this.getPointSize(window.innerWidth);
         }
         this.geometry.attributes.size.needsUpdate = true;
     }

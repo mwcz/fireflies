@@ -14,7 +14,13 @@ const dotter = new Dotter({
 // create a particle view
 
 const view = new ParticleView({
-    size: 8,
+    size: {
+        max: 12,
+        min: 20,
+        maxWidth: 1920,
+        minWidth: 400,
+        spread: 4,
+    },
     count: 6000,
     color: {
         top: '#ADCFFF',
@@ -32,9 +38,9 @@ const view = new ParticleView({
         ofunc: Tween.easeInOutCubic,
     },
     canvas: {
-        width: 960,
-        height: 420,
-        container: document.querySelector('#fireflies-container'),
+        width: 1920,
+        height: 640,
+        domElement: document.querySelector('#fireflies-canvas'),
     },
     sprite: '/static/js/homepage-fireflies/spark1.png',
     // flee: {
