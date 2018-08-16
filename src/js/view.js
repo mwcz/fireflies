@@ -64,7 +64,7 @@ class ParticleView {
                     vColor = customColor;
                     vOpacity = opacity;
                     vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-                    gl_PointSize = size * ( 300.0 / -mvPosition.z );
+                    gl_PointSize = size;
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
@@ -114,7 +114,7 @@ class ParticleView {
             // this.colors[ i3 + 1 ]      = color.g;
             // this.colors[ i3 + 2 ]      = color.b;
             // this.sizes[ i ]               = this.widthScale * this.size + Math.random()*this.size/2;
-            this.sizes[ i ]               = this.getPointSize(window.innerWidth);
+            this.sizes[ i ]               = this.getPointSize();
             this.tweenTimeScale[ i ]      = Math.min(1.0, Math.max(0.5, Math.random()));
         }
         geometry.addAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
@@ -149,15 +149,11 @@ class ParticleView {
         this.flyVector = new THREE.Vector2();
         // document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
     }
-    getPointSize(width) {
+    getPointSize() {
         const maxSize = this.size.max;
         const minSize = this.size.min;
-        const maxWidth = this.size.maxWidth;
-        const minWidth = this.size.minWidth;
 
-        const spread = this.size.spread;
-
-        return (width - minWidth) * (maxSize - minSize) / (maxWidth - minWidth) + minSize + Math.random() * spread - spread / 2;
+        return minSize + (maxSize - minSize) * (Math.random());
     }
     onMouseMove(evt) {
         this.mouseDetected = true;
@@ -203,7 +199,7 @@ class ParticleView {
         for ( let i = 0, i3 = 0; i < this.count; i ++, i3 = i3 + 3 ) {
             this.fidgetDistance[ i3 + 0 ] = this.fidget.distance * (Math.random() - 0.5);
             this.fidgetDistance[ i3 + 1 ] = this.fidgetDistance[ i3 + 0 ];
-            this.sizes[ i ] = this.getPointSize(window.innerWidth);
+            this.sizes[ i ] = this.getPointSize();
         }
         this.geometry.attributes.size.needsUpdate = true;
     }
@@ -322,7 +318,7 @@ class ParticleView {
 
                 this.destinations[i3]   = x * w;
                 this.destinations[i3+1] = y * h;
-                this.opacityDest[i] = 1;
+                this.opacityDest[i] = this.color.opacity;
             }
             else {
                 const dotCount3 = dotterResult.dots.length * 3/2;
