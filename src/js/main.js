@@ -58,7 +58,7 @@ const masks = [
     '../masks/science-wiz.png',
     '../masks/dimo.png',
     '../masks/mushroom.png',
-    '../masks/sparkconquest1.png.opt358x146o0,0s358x146.png',
+    '../masks/sparkconquest.png',
     '../masks/1dpong.png',
     '../masks/bixel.png',
 ];
