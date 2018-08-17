@@ -21,6 +21,7 @@
                 font-family: sans-serif;
                 background: #000;
             }
+            * { user-select: none; }
             #fireflies-container {
                 position: absolute;
                 top: 0;
@@ -34,6 +35,13 @@
                 width: 100%;
                 object-fit: cover;
             }
+            #geekspark-stamp {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                width: 400px;
+                opacity: 0.2;
+            }
         </style>
     </head>
     <body>
@@ -41,6 +49,8 @@
         <div id="fireflies-container">
             <canvas id="fireflies-canvas"></canvas>
         </div>
+
+        <img id="geekspark-stamp" src="./this-year-geekspark.png">
 
         <!-- third party -->
         <script src="lib/three.min.js"></script>

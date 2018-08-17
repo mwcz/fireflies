@@ -20,11 +20,10 @@ const view = new ParticleView({
     },
     count: 15000,
     color: {
-        top: '#27508A',
-        bottom: '#ADCFFF',
+        top: '#3153A9',
+        bottom: '#FB9034',
         background: '#000000',
-        opacity: 0.8,
-        // background: '#121212',
+        opacity: 0.9,
     },
     fidget: {
         speed: 2.4,
@@ -59,6 +58,7 @@ const masks = [
     '../masks/science-wiz.png',
     '../masks/dimo.png',
     '../masks/mushroom.png',
+    '../masks/sparkconquest1.png.opt358x146o0,0s358x146.png',
     '../masks/1dpong.png',
     '../masks/bixel.png',
 ];
