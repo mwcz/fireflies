@@ -36,8 +36,8 @@ const view = new ParticleView({
         ofunc: Tween.easeInOutCubic,
     },
     canvas: {
-        width: 1920,
-        height: 1080,
+        width: 600,
+        height: 200,
         domElement: document.querySelector('#fireflies-canvas'),
     },
     sprite: 'pixel.png',
@@ -51,16 +51,7 @@ const view = new ParticleView({
 // rotate through these pictures
 
 const masks = [
-    'masks/sparkcon.jpg',
-    'masks/sparky.png',
-    'masks/geekspark-fireflies.png',
-    'masks/vr.png',
-    'masks/science-wiz.png',
-    'masks/dimo.png',
-    'masks/mushroom.png',
-    'masks/sparkconquest.png',
-    'masks/1dpong.png',
-    'masks/bixel.png',
+    'masks/clayto.png',
 ];
 
 // wire up ui to particleview
