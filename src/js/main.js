@@ -15,8 +15,8 @@ dotter.addFilter(Bitter.scale);
 
 const view = new ParticleView({
     size: {
-        min: 15,
-        max: 25,
+        min: 12,
+        max: 20,
     },
     count: 18000,
     color: {
@@ -83,4 +83,4 @@ const next = () => {
     }
 }
 next();
-view.renderer.domElement.addEventListener('click', next);
+// view.renderer.domElement.addEventListener('click', next);
