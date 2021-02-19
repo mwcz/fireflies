@@ -3,8 +3,8 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 // create a dotter
 
 const dotter = new Dotter({
-    jitter: 0.8,
-    density: 0.215,
+    jitter: 1.2,
+    density: 0.28,
 });
 
 // scale is broken in firefox/safari, disabling for now
@@ -15,19 +15,22 @@ dotter.addFilter(Bitter.scale);
 
 const view = new ParticleView({
     size: {
-        max: 28,
-        min: 18,
+        min: 15,
+        max: 25,
     },
-    count: 15000,
+    count: 18000,
     color: {
-        top: '#3153A9',
-        bottom: '#FB9034',
-        background: '#000000',
+        top: '#FFEC21',
+        bottom: '#39AD10',
+        // background: '#374330',
+        // top: '#ffffff',
+        // bottom: '#ee0000',
+        background: '#191F16',
         opacity: 0.9,
     },
     fidget: {
-        speed: 2.4,
-        distance: 0.8,
+        speed: 1.0,
+        distance: 0.6,
     },
     tween: {
         duration: 300, // fps
@@ -36,22 +39,30 @@ const view = new ParticleView({
         ofunc: Tween.easeInOutCubic,
     },
     canvas: {
-        width: 600,
-        height: 200,
+        width: 1920,
+        height: 1080,
         domElement: document.querySelector('#fireflies-canvas'),
     },
-    sprite: 'pixel.png',
-    // flee: {
-    //     distance: 5,
-    //     proximity: 40,
-    //     reflex: 0.03,
-    // },
+    sprite: 'hand.png',
+    flee: {
+        distance: 5,
+        proximity: 40,
+        reflex: 0.03,
+    },
 });
 
 // rotate through these pictures
 
 const masks = [
-    'masks/clayto.png',
+    'masks/ian/1.png',
+    'masks/ian/2.png',
+    'masks/ian/3.png',
+    'masks/ian/4.png',
+    'masks/ian/5.png',
+    'masks/ian/6.png',
+    'masks/ian/7.png',
+    'masks/ian/8.png',
+    'masks/ian/9.png',
 ];
 
 // wire up ui to particleview
@@ -63,12 +74,13 @@ let tid = 0;
 const next = () => {
     dotter.process(masks[i]).then(view.shape.bind(view));
     i += 1;
-    i %= masks.length;
     if (tid) {
         clearTimeout(tid);
         console.log(`[main] cleared pending mask (tid: ${tid})`);
     }
-    tid = setTimeout(next, 8000);
+    if (i < masks.length) {
+        tid = setTimeout(next, 7000);
+    }
 }
 next();
 view.renderer.domElement.addEventListener('click', next);

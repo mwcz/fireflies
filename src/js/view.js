@@ -125,7 +125,7 @@ class ParticleView {
         scene.add( particleSystem );
         renderer = new THREE.WebGLRenderer({ canvas: this.canvas.domElement });
         renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setSize( WIDTH, HEIGHT );
+        renderer.setSize( 1920, 1080 );
         renderer.domElement.setAttribute('style', ''); // width/height attributes are fine, but we want to clear the style attributes so the element can be resized and retain aspect ratio
         renderer.setClearColor(new THREE.Color(this.color.background));
         // this.canvas.container.removeChild(this.canvas.container.querySelector('img.placeholder')); // remove the placeholder img
@@ -192,7 +192,7 @@ class ParticleView {
         this.widthScale = window.innerWidth / 1000;
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.renderer.setSize(1920,1080);
         this.setViewportRelativeFields();
     }
     setViewportRelativeFields() {
@@ -305,13 +305,23 @@ class ParticleView {
         //     this.destinations[i3]   = x * w;
         //     this.destinations[i3+1] = y * h;
         // }
-        for ( let i = 0, i2 = 0, i3 = 0; i < this.count; i++, i2 = i2 + 2, i3 = i3 + 3 ) {
+        let min = Infinity;
+        let max = -Infinity;
+        for ( let i = 0, i2 = 0, i3 = 0; i < this.count; i+= 1, i2 += 2, i3 += 3 ) {
             if (i2 < dotterResult.dots.length) {
                 // update destinations for each particle which has a corresponding destination
                 const x = dotterResult.dots[i2] - 0.5;
                 const y = -dotterResult.dots[i2+1] + 0.5;
 
-                color.copy(this.color.top).lerp(this.color.bottom, dotterResult.dots[i2+1]);
+                let test = (dotterResult.dots[i2+1]-0.3)*2.5;
+                if (test < min) {
+                    min = test;
+                }
+                if (test > max) {
+                    max = test;
+                }
+                color.copy(this.color.top).lerp(this.color.bottom, test);
+
                 this.colorTargets[ i3 + 0 ] = color.r;
                 this.colorTargets[ i3 + 1 ] = color.g;
                 this.colorTargets[ i3 + 2 ] = color.b;
@@ -329,6 +339,7 @@ class ParticleView {
                 this.opacityDest[i] = 0;
             }
         }
+        console.log({min, max});
         this.geometry.attributes.opacity.needsUpdate = true;
         this.geometry.attributes.customColor.needsUpdate = true;
 

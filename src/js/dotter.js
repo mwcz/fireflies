@@ -118,7 +118,7 @@ class Dotter {
                 a = pixels.data[i+3];
 
                 // look for black pixels or totally transparent pixels
-                if (r+g+b === 0 && a !== 0) {
+                if ((r+g+b)/3 >= 190 && a !== 0) {
                     let xJitter = Math.floor(Math.random() * this.jitter * step);
                     let yJitter = Math.floor(Math.random() * this.jitter * step);
                     points.push((x + xJitter) / w);
